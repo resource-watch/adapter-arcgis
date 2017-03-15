@@ -1,0 +1,13 @@
+{
+     "logger": {
+        "name": "adapter-arcgis-DEV",
+        "level": "debug",
+        "toFile": false,
+        "dirLogFile": null
+    },
+    "service": {
+        "id": "adapter-arcgis",
+        "name": "Adapter Arcgis",
+        "port": 3055
+    }
+}
