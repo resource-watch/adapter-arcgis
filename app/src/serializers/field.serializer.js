@@ -2,12 +2,18 @@ class FieldSerializer {
 
     static serialize(fieldsData, tableName) {
         const fields = {};
-        fieldsData.forEach((el) => {
-            fields[el.name] = { type: el.type };
-        });
+        if (fieldsData) {
+            fieldsData.forEach((el) => {
+                fields[el.name] = { type: el.type };
+            });
+            return {
+                tableName,
+                fields
+            };
+        }
         return {
             tableName,
-            fields
+            fields: {}
         };
     }
 
