@@ -161,7 +161,7 @@ const queryMiddleware = async(ctx, next) => {
         if (params.geojson) {
             options.method = 'POST';
             options.body = {
-                geojson: params.geojson
+                geojson: ctx.request.body.geojson
             };
         }
 
