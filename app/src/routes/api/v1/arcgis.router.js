@@ -158,6 +158,12 @@ const queryMiddleware = async(ctx, next) => {
         if (params.geostore) {
             options.uri += `&geostore=${params.geostore}`;
         }
+        if (params.geojson) {
+            options.method = 'POST';
+            options.body = {
+                geojson: ctx.request.body.geojson
+            };
+        }
 
         try {
             const result = await ctRegisterMicroservice.requestToMicroservice(options);
@@ -198,6 +204,10 @@ const queryMiddleware = async(ctx, next) => {
             });
             esriJson = result.data.attributes.esrijson;
         }
+        if (params.geojson) {
+            esriJson = params.geojson;
+        }
+        delete params.geojson;
         delete params.geostore;
         ctx.query.sql = `?${serializeObjToQuery(params)}`;
         if (esriJson) {
