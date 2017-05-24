@@ -65,7 +65,7 @@ class QueryService {
             }
         } else if (this.download) {
             if (this.downloadType === 'geojson') {
-                this.passthrough.write(`{"data":[{"type": "FeatureCollection", "features": [`);
+                this.passthrough.write(`{"data":[{"type": "FeatureCollection", "features": `);
             } else if (this.downloadType !== 'csv') {
                 this.passthrough.write(`[`);
             }
@@ -90,7 +90,7 @@ class QueryService {
             this.passthrough.write(`], "meta": ${JSON.stringify(meta)} }`);
         } else if (this.download) {
             if (this.downloadType === 'geojson') {
-                this.passthrough.write(`]}]}`);
+                this.passthrough.write(`}]}`);
             } else if (this.downloadType !== 'csv') {
                 this.passthrough.write(`]`);
             }
