@@ -56,6 +56,7 @@
     "koa-router": "^7.0.1",
     "request": "^2.79.0",
     "request-promise": "^4.1.1",
-    "simple-sql-parser": "git+https://github.com/rrequero/simpleSqlParser.git#between"
+    "simple-sql-parser": "git+https://github.com/rrequero/simpleSqlParser.git#between",
+    "terraformer-arcgis-parser": "^1.0.4"
   }
 }
