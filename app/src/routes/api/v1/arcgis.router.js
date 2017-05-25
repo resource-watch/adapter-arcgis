@@ -50,7 +50,8 @@ class ArcgisRouter {
         const cloneUrl = ArcgisRouter.getCloneUrl(ctx.request.url, ctx.params.dataset);
         try {
             ctx.body = passThrough();
-            const queryService = await new QueryService(ctx.query.sql, ctx.request.body.dataset, ctx.body, cloneUrl, false, null);
+            const format = ctx.query.format ? ctx.query.format : 'json';
+            const queryService = await new QueryService(ctx.query.sql, ctx.request.body.dataset, ctx.body, cloneUrl, false, format);
             await queryService.execute();
             logger.debug('Finished query');
         } catch (err) {

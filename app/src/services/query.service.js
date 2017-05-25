@@ -1,5 +1,6 @@
 const logger = require('logger');
 const ArcgisService = require('services/arcgis.service');
+const arcgis = require('terraformer-arcgis-parser');
 const JSONStream = require('JSONStream');
 const json2csv = require('json2csv');
 
@@ -30,21 +31,25 @@ class QueryService {
     async writeRequest(request) {
         let count = 0;
         return new Promise((resolve, reject) => {
-            let stream = null;
+            let parser = null;
             if (this.sql.indexOf('returnCountOnly') >= 0) {
-                stream = request.pipe(JSONStream.parse('count'))
-                    .on('data', data => {
-                        this.passthrough.write(this.convertObject({ count: data }));
-                    });
+                parser = JSONStream.parse('count');
             } else {
-                stream = request.pipe(JSONStream.parse('features.*.attributes'))
-                    .on('data', (data) => {
-                        count++;
-                        this.passthrough.write(this.convertObject(data));
-                        this.first = false;
-                    });
+                if (this.downloadType === 'geojson') {
+                    parser = JSONStream.parse('features');
+                } else {
+                    parser = JSONStream.parse('features.*.attributes');
+                }
             }
-            stream
+            request.pipe(parser)
+                .on('data', (data) => {
+                    count++;
+                    if (this.downloadType === 'geojson') {
+                        data = data.map(arcgis.parse);
+                    }
+                    this.passthrough.write(this.convertObject(data));
+                    this.first = false;
+                })
                 .on('end', () => resolve(count))
                 .on('error', () => reject('Error in stream'));
         });
@@ -55,8 +60,15 @@ class QueryService {
         this.first = true;
         if (!this.download) {
             this.passthrough.write(`{"data":[`);
-        } else if (this.download && this.downloadType !== 'csv') {
-            this.passthrough.write(`[`);
+            if (this.downloadType === 'geojson') {
+                this.passthrough.write(`{"type": "FeatureCollection", "features": `);
+            }
+        } else if (this.download) {
+            if (this.downloadType === 'geojson') {
+                this.passthrough.write(`{"data":[{"type": "FeatureCollection", "features": `);
+            } else if (this.downloadType !== 'csv') {
+                this.passthrough.write(`[`);
+            }
         }
 
         const request = ArcgisService.executeQuery(this.dataset.connectorUrl, this.sql);
@@ -70,10 +82,18 @@ class QueryService {
         const meta = {
             cloneUrl: this.cloneUrl
         };
+
         if (!this.download) {
+            if (this.downloadType === 'geojson') {
+                this.passthrough.write(`}`);
+            }
             this.passthrough.write(`], "meta": ${JSON.stringify(meta)} }`);
-        } else if (this.downloadType !== 'csv') {
-            this.passthrough.write(`]`);
+        } else if (this.download) {
+            if (this.downloadType === 'geojson') {
+                this.passthrough.write(`}]}`);
+            } else if (this.downloadType !== 'csv') {
+                this.passthrough.write(`]`);
+            }
         }
         logger.debug('Finished');
         this.passthrough.end();
