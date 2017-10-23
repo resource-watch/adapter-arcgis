@@ -13,8 +13,6 @@ class QueryService {
         this.cloneUrl = cloneUrl;
         this.download = download;
         this.downloadType = downloadType;
-        this.timeout = false;
-        this.timeoutFunc = setTimeout(() => { this.timeout = true; }, 60000);
     }
 
     convertObject(data) {
@@ -25,7 +23,6 @@ class QueryService {
             })}\n`;
         }
         return `${!this.first ? ',' : ''}${JSON.stringify(data)}`;
-
     }
 
     async writeRequest(request) {
@@ -41,6 +38,7 @@ class QueryService {
                     parser = JSONStream.parse('features.*.attributes');
                 }
             }
+            request.on('error', (err) => reject(err));
             request.pipe(parser)
                 .on('data', (data) => {
                     count++;
@@ -51,7 +49,10 @@ class QueryService {
                     this.first = false;
                 })
                 .on('end', () => resolve(count))
-                .on('error', () => reject('Error in stream'));
+                .on('error', (err) => {
+                    logger.error(err);
+                    reject(err);
+                });
         });
     }
 
@@ -72,13 +73,13 @@ class QueryService {
         }
 
         const request = ArcgisService.executeQuery(this.dataset.connectorUrl, this.sql);
-        await this.writeRequest(request);
-
-        if (this.timeout) {
-            this.passthrough.end();
-            throw new Error('Timeout exceeded');
+        try {
+            await this.writeRequest(request);
+        } catch (err) {
+            logger.error(`Error in request: ${err}`);
+            throw new Error('Error in request');
         }
-        clearTimeout(this.timeoutFunc);
+
         const meta = {
             cloneUrl: this.cloneUrl
         };

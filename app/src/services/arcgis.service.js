@@ -29,7 +29,8 @@ class ArcgisService {
             return request({
                 method: 'GET',
                 uri: reqUrl,
-                json: true
+                json: true,
+                timeout: 30000
             });
         } catch (err) {
             logger.error('Error doing query', err);
