@@ -51,7 +51,7 @@ class ArcgisRouter {
         try {
             ctx.body = passThrough();
             const format = ctx.query.format ? ctx.query.format : 'json';
-            const queryService = await new QueryService(ctx.query.sql, ctx.request.body.dataset, ctx.body, cloneUrl, false, format);
+            const queryService = await new QueryService(ctx.query.sql, ctx.state.jsonSql, ctx.request.body.dataset, ctx.body, cloneUrl, false, format);
             await queryService.execute();
             logger.debug('Finished query');
         } catch (err) {
@@ -78,7 +78,7 @@ class ArcgisRouter {
             }
 
             const cloneUrl = ArcgisRouter.getCloneUrl(ctx.request.url, ctx.params.dataset);
-            const queryService = await new QueryService(ctx.query.sql, ctx.request.body.dataset, ctx.body, cloneUrl, true, format);
+            const queryService = await new QueryService(ctx.query.sql, ctx.state.jsonSql, ctx.request.body.dataset, ctx.body, cloneUrl, true, format);
 
             ctx.set('Content-disposition', `attachment; filename=${ctx.request.body.dataset.id}.${format}`);
             ctx.set('Content-type', mimetype);
@@ -171,6 +171,7 @@ const queryMiddleware = async(ctx, next) => {
 
             if (result.statusCode === 204 || result.statusCode === 200) {
                 ctx.query.sql = result.body.data.attributes.query;
+                ctx.state.jsonSql = result.body.data.attributes.jsonSql;
             } else {
                 if (result.statusCode === 400) {
                     ctx.status = result.statusCode;

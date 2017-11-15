@@ -6,8 +6,9 @@ const json2csv = require('json2csv');
 
 class QueryService {
 
-    constructor(sql, dataset, passthrough, cloneUrl, download, downloadType) {
+    constructor(sql, jsonSql, dataset, passthrough, cloneUrl, download, downloadType) {
         this.sql = sql;
+        this.jsonSql = jsonSql;
         this.dataset = dataset;
         this.passthrough = passthrough;
         this.cloneUrl = cloneUrl;
@@ -16,6 +17,16 @@ class QueryService {
     }
 
     convertObject(data) {
+        if (this.jsonSql && this.jsonSql.select) {
+            let column;
+            for (let i = 0, length = this.jsonSql.select.length; i < length; i++){
+                column = this.jsonSql.select[i];
+                if (column.alias && column.value !== '*' && data[column.value]) {
+                    data[column.alias] = data[column.value];
+                    delete data[column.value];
+                }
+            }
+        }
         if (this.download && this.downloadType === 'csv') {
             return `${json2csv({
                 data,
