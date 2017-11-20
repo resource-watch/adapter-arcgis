@@ -140,6 +140,16 @@ const deserializeDataset = async(ctx, next) => {
     await next();
 };
 
+function getNameColumnFunction(column) {
+    let name = column.value + '(';
+    for (let i= 0, length = column.arguments.length; i < length; i++) {
+        name +=column.arguments[i].value;
+    }
+    name += ')';
+    return name;
+}
+
+
 const queryMiddleware = async(ctx, next) => {
     const options = {
         method: 'GET',
@@ -170,7 +180,24 @@ const queryMiddleware = async(ctx, next) => {
             const result = await ctRegisterMicroservice.requestToMicroservice(options);
 
             if (result.statusCode === 204 || result.statusCode === 200) {
-                ctx.query.sql = result.body.data.attributes.query;
+                const json2sql = result.body.data.attributes.jsonSql;
+                //convert alias in groupby
+                if (result.body.data.attributes.fs.groupByFieldsForStatistics) {
+                    const groups = result.body.data.attributes.fs.groupByFieldsForStatistics.split(',');
+                    for (let j = 0; j < groups.length; j++) {                        
+                        for (let i = 0; i < json2sql.select.length; i++) {
+                            if (json2sql.select[i].type === 'literal'){
+                                if (groups[j] === json2sql.select[i].alias) {
+                                    groups[j] = json2sql.select[i].value;
+                                }
+                            }
+                        }
+                    }
+                    result.body.data.attributes.fs.groupByFieldsForStatistics = groups.join(',');
+                }
+                
+                ctx.query.sql = `?${serializeObjToQuery(result.body.data.attributes.fs)}`;
+                
                 ctx.state.jsonSql = result.body.data.attributes.jsonSql;
             } else {
                 if (result.statusCode === 400) {
