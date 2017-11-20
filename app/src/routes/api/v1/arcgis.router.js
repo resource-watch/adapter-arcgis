@@ -195,7 +195,9 @@ const queryMiddleware = async(ctx, next) => {
                     }
                     result.body.data.attributes.fs.groupByFieldsForStatistics = groups.join(',');
                 }
-                ctx.query.sql = serializeObjToQuery(result.body.data.attributes.query);
+                logger.info('ctx.query.sql', result.body.data.attributes.fs);
+                ctx.query.sql = serializeObjToQuery(result.body.data.attributes.fs);
+                logger.info('ctx.query.sql', ctx.query.sql);
                 ctx.state.jsonSql = result.body.data.attributes.jsonSql;
             } else {
                 if (result.statusCode === 400) {
