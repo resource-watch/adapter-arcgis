@@ -190,8 +190,6 @@ const queryMiddleware = async(ctx, next) => {
                                 if (groups[j] === json2sql.select[i].alias) {
                                     groups[j] = json2sql.select[i].value;
                                 }
-                            } else if (json2sql.select[i].type === 'function' && getNameColumnFunction(json2sql.select[i]) === groups[j]) {
-                                groups[j] = getNameColumnFunction(json2sql.select[i]);
                             }
                         }
                     }
