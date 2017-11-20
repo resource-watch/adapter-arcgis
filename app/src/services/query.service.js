@@ -4,6 +4,15 @@ const arcgis = require('terraformer-arcgis-parser');
 const JSONStream = require('JSONStream');
 const json2csv = require('json2csv');
 
+function getNameColumnFunction(column) {
+    let name = column.value + '(';
+    for (let i= 0, length = column.arguments.length; i < length; i++) {
+        name +=column.arguments[i].value;
+    }
+    name += ')';
+    return name;
+}
+
 class QueryService {
 
     constructor(sql, jsonSql, dataset, passthrough, cloneUrl, download, downloadType) {
@@ -19,11 +28,15 @@ class QueryService {
     convertObject(data) {
         if (this.jsonSql && this.jsonSql.select) {
             let column;
-            for (let i = 0, length = this.jsonSql.select.length; i < length; i++){
+            for (let i = 0, length = this.jsonSql.select.length; i < length; i++) {
                 column = this.jsonSql.select[i];
                 if (column.alias && column.value !== '*' && data[column.value]) {
                     data[column.alias] = data[column.value];
                     delete data[column.value];
+                } else if (column.type === 'function' && getNameColumnFunction(column) && data[getNameColumnFunction(column)]){
+                    const name = getNameColumnFunction(column);
+                    data[column.alias] = data[name];
+                    delete data[name];
                 }
             }
         }
