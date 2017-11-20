@@ -182,8 +182,8 @@ const queryMiddleware = async(ctx, next) => {
             if (result.statusCode === 204 || result.statusCode === 200) {
                 const json2sql = result.body.data.attributes.jsonSql;
                 //convert alias in groupby
-                if (result.body.data.fs.groupByFieldsForStatistics) {
-                    const groups = result.body.data.fs.groupByFieldsForStatistics.split(',');
+                if (result.body.data.attributes.fs.groupByFieldsForStatistics) {
+                    const groups = result.body.data.attributes.fs.groupByFieldsForStatistics.split(',');
                     for (let j = 0; j < groups.length; j++) {                        
                         for (let i = 0; i < json2sql.select.length; i++) {
                             if (json2sql.select[i].type === 'literal'){
@@ -193,7 +193,7 @@ const queryMiddleware = async(ctx, next) => {
                             }
                         }
                     }
-                    result.body.data.fs.groupByFieldsForStatistics = groups.join(',');
+                    result.body.data.attributes.fs.groupByFieldsForStatistics = groups.join(',');
                 }
                 ctx.query.sql = serializeObjToQuery(result.body.data.attributes.query);
                 ctx.state.jsonSql = result.body.data.attributes.jsonSql;
