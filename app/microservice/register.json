@@ -1,5 +1,7 @@
 {
-	"name": "#(service.name)",
+	"name": "Arcgis adapter",
+	"cache": ["query-arcgis"],
+	"uncache": ["query-arcgis"],
 	"tags": ["rw"],
 	"endpoints": [{
 		"path": "/v1/query/:dataset",
