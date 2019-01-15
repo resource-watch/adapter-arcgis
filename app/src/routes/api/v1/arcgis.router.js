@@ -13,12 +13,12 @@ const router = new Router({
     prefix: '/arcgis',
 });
 
-const serializeObjToQuery = (obj) => Object.keys(obj).reduce((a, k) => {
+const serializeObjToQuery = obj => Object.keys(obj).reduce((a, k) => {
     a.push(`${k}=${encodeURIComponent(obj[k])}`);
     return a;
 }, []).join('&');
 
-const deserializer = (obj) => (new Promise((resolve, reject) => {
+const deserializer = obj => (new Promise((resolve, reject) => {
     new JSONAPIDeserializer({
         keyForAttribute: 'camelCase'
     }).deserialize(obj, (err, data) => {
@@ -67,13 +67,13 @@ class ArcgisRouter {
             let mimetype;
             switch (format) {
 
-            case 'csv':
-                mimetype = 'text/csv';
-                break;
-            case 'json':
-            default:
-                mimetype = 'application/json';
-                break;
+                case 'csv':
+                    mimetype = 'text/csv';
+                    break;
+                case 'json':
+                default:
+                    mimetype = 'application/json';
+                    break;
 
             }
 
@@ -129,28 +129,16 @@ class ArcgisRouter {
 
 }
 
-const deserializeDataset = async(ctx, next) => {
+const deserializeDataset = async (ctx, next) => {
     if (ctx.request.body.dataset && ctx.request.body.dataset.data) {
         ctx.request.body.dataset = await deserializer(ctx.request.body.dataset);
-    } else {
-        if (ctx.request.body.dataset && ctx.request.body.dataset.table_name) {
-            ctx.request.body.dataset.tableName = ctx.request.body.dataset.table_name;
-        }
+    } else if (ctx.request.body.dataset && ctx.request.body.dataset.table_name) {
+        ctx.request.body.dataset.tableName = ctx.request.body.dataset.table_name;
     }
     await next();
 };
 
-function getNameColumnFunction(column) {
-    let name = column.value + '(';
-    for (let i= 0, length = column.arguments.length; i < length; i++) {
-        name +=column.arguments[i].value;
-    }
-    name += ')';
-    return name;
-}
-
-
-const queryMiddleware = async(ctx, next) => {
+const queryMiddleware = async (ctx, next) => {
     const options = {
         method: 'GET',
         json: true,
@@ -181,13 +169,13 @@ const queryMiddleware = async(ctx, next) => {
 
             if (result.statusCode === 204 || result.statusCode === 200) {
                 const json2sql = result.body.data.attributes.jsonSql;
-                //convert alias in groupby
+                // convert alias in groupby
                 if (result.body.data.attributes.fs.groupByFieldsForStatistics) {
                     const groups = result.body.data.attributes.fs.groupByFieldsForStatistics.split(',');
-                    for (let j = 0; j < groups.length; j++) {                        
-                        for (let i = 0; i < json2sql.select.length; i++) {
-                            if (json2sql.select[i].type === 'literal'){
-                                if (groups[j] === json2sql.select[i].alias) {
+                    for (let j = 0; j < groups.length; j += 1) {
+                        for (let i = 0; i < json2sql.select.length; i += 1) {
+                            if (json2sql.select[i].type === 'literal') {
+                                if (groups[j] === json2sql.select[i].alias) {
                                     groups[j] = json2sql.select[i].value;
                                 }
                             }
@@ -195,17 +183,15 @@ const queryMiddleware = async(ctx, next) => {
                     }
                     result.body.data.attributes.fs.groupByFieldsForStatistics = groups.join(',');
                 }
-                
+
                 ctx.query.sql = `?${serializeObjToQuery(result.body.data.attributes.fs)}`;
-                
+
                 ctx.state.jsonSql = result.body.data.attributes.jsonSql;
+            } else if (result.statusCode === 400) {
+                ctx.status = result.statusCode;
+                ctx.body = result.body;
             } else {
-                if (result.statusCode === 400) {
-                    ctx.status = result.statusCode;
-                    ctx.body = result.body;
-                } else {
-                    ctx.throw(result.statusCode, result.body);
-                }
+                ctx.throw(result.statusCode, result.body);
             }
 
         } catch (e) {

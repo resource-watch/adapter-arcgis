@@ -5,9 +5,9 @@ const JSONStream = require('JSONStream');
 const json2csv = require('json2csv');
 
 function getNameColumnFunction(column) {
-    let name = column.value + '(';
-    for (let i= 0, length = column.arguments.length; i < length; i++) {
-        name +=column.arguments[i].value;
+    let name = `${column.value}(`;
+    for (let i = 0, { length } = column.arguments; i < length; i += 1) {
+        name += column.arguments[i].value;
     }
     name += ')';
     return name;
@@ -28,15 +28,17 @@ class QueryService {
     convertObject(data) {
         if (this.jsonSql && this.jsonSql.select) {
             let column;
-            for (let i = 0, length = this.jsonSql.select.length; i < length; i++) {
+            for (let i = 0, { length } = this.jsonSql.select; i < length; i += 1) {
                 column = this.jsonSql.select[i];
-                if (column.alias && column.value !== '*' && data[column.value]) {
+                if (column.alias && column.value !== '*' && data[column.value] && column.alias !== column.value) {
                     data[column.alias] = data[column.value];
                     delete data[column.value];
-                } else if (column.type === 'function' && getNameColumnFunction(column) && data[getNameColumnFunction(column)]){
+                } else if (column.type === 'function' && getNameColumnFunction(column) && data[getNameColumnFunction(column)]) {
                     const name = getNameColumnFunction(column);
                     data[column.alias] = data[name];
-                    delete data[name];
+                    if (column.alias !== name) {
+                        delete data[name];
+                    }
                 }
             }
         }
@@ -55,17 +57,15 @@ class QueryService {
             let parser = null;
             if (this.sql.indexOf('returnCountOnly') >= 0) {
                 parser = JSONStream.parse('count');
+            } else if (this.downloadType === 'geojson') {
+                parser = JSONStream.parse('features');
             } else {
-                if (this.downloadType === 'geojson') {
-                    parser = JSONStream.parse('features');
-                } else {
-                    parser = JSONStream.parse('features.*.attributes');
-                }
+                parser = JSONStream.parse('features.*.attributes');
             }
-            request.on('error', (err) => reject(err));
+            request.on('error', err => reject(err));
             request.pipe(parser)
                 .on('data', (data) => {
-                    count++;
+                    count += 1;
                     if (this.downloadType === 'geojson') {
                         data = data.map(arcgis.parse);
                     }
