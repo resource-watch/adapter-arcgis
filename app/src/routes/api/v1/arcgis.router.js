@@ -153,7 +153,7 @@ const queryMiddleware = async (ctx, next) => {
     if (ctx.query.sql || ctx.request.body.sql) {
         logger.debug('Checking sql correct');
         const params = Object.assign({}, ctx.query, ctx.request.body);
-        options.uri = `/convert/sql2FS?sql=${params.sql}`;
+        options.uri = `/convert/sql2FS?sql=${encodeURI(params.sql)}`;
         if (params.geostore) {
             options.uri += `&geostore=${params.geostore}`;
         }
