@@ -23,7 +23,7 @@ describe('Query tests', () => {
         nock.cleanAll();
     });
 
-    it('Query a dataset with select *', async () => {
+    it('Query a dataset with "SELECT *" returns data', async () => {
 
         const query = 'SELECT * FROM coddonnees_ouvertes_enMapServer31';
         const featureServiceResponseFullQuery = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'featureServiceResponseFullQuery.json'), 'utf8'));
@@ -58,9 +58,6 @@ describe('Query tests', () => {
                     relationships: {}
                 }
             });
-
-
-        // https://gis.forest-atlas.org/server/rest/services/cod/donnees_ouvertes_en/MapServer/31/query?tableName=coddonnees_ouvertes_enMapServer31&outFields=*&where=1%3D1&f=json
 
         nock('https://gis.forest-atlas.org')
             .get('/server/rest/services/cod/donnees_ouvertes_en/MapServer/31/query')
@@ -97,7 +94,7 @@ describe('Query tests', () => {
         Object.keys(responseContent).should.deep.equal(Object.keys(featureServiceResponseFullQuery.fieldAliases));
     });
 
-    it('Query a dataset with min() and max() calls', async () => {
+    it('Query a dataset with min() and max() calls returns data', async () => {
 
         const query = 'SELECT min(shape_Length) AS min, max(shape_Length) AS max FROM coddonnees_ouvertes_enMapServer31';
 
@@ -210,7 +207,7 @@ describe('Query tests', () => {
         responseContent.should.have.property('max').and.equal(475966.99578403885);
     });
 
-    it('Query a dataset with WHERE LIKE \'%%\' calls', async () => {
+    it('Query a dataset with "WHERE LIKE \'%%\'" calls returns data', async () => {
 
         const query = 'SELECT tcl_name as x, area_ha as y FROM conservationMapServer3 WHERE tcl_name LIKE \'%ba%\'  ORDER BY area_ha desc LIMIT 50';
 
