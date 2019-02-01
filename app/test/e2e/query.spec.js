@@ -337,6 +337,79 @@ describe('Query tests', () => {
         responseContent[5].should.have.property('y').and.equal(530400);
     });
 
+    it('Unsupported ArcGIS queries return an error', async () => {
+
+        const query = 'SELECT DISTINCT FUNCSTAT10 FROM ea852c8e-4dca-493c-8de2-e2d84d02897f LIMIT 10';
+
+        nock(process.env.CT_URL)
+            .get('/v1/convert/sql2FS')
+            .query({ sql: query })
+            .reply(200, {
+                data: {
+                    type: 'result',
+                    id: 'undefined',
+                    attributes: {
+                        query: '?returnDistinctValues=true&returnGeometry=false&outFields=FUNCSTAT10&tableName=ea852c8e-4dca-493c-8de2-e2d84d02897f&where=1=1&resultRecordCount=10&supportsPagination=true',
+                        fs: {
+                            returnGeometry: false,
+                            returnDistinctValues: true,
+                            tableName: 'ea852c8e-4dca-493c-8de2-e2d84d02897f',
+                            outFields: 'FUNCSTAT10',
+                            resultRecordCount: 10,
+                            supportsPagination: true,
+                            where: '1=1'
+                        },
+                        jsonSql: {
+                            select: [{
+                                type: 'distinct',
+                                arguments: [{ value: 'FUNCSTAT10', alias: null, type: 'literal' }]
+                            }],
+                            from: 'ea852c8e-4dca-493c-8de2-e2d84d02897f',
+                            limit: 10
+                        }
+                    },
+                    relationships: {}
+                }
+            });
+
+
+        nock('https://coast.noaa.gov')
+            .get('/arcgis/rest/services/sovi/sovi_tracts2010/MapServer/8/query')
+            .query({
+                returnGeometry: 'false',
+                returnDistinctValues: 'true',
+                tableName: 'ea852c8e-4dca-493c-8de2-e2d84d02897f',
+                outFields: 'FUNCSTAT10',
+                resultRecordCount: '10',
+                supportsPagination: 'true',
+                where: '1=1',
+                f: 'json'
+            })
+            .reply(200, { error: { code: 400, message: 'Failed to execute query.', details: [] } });
+
+
+        const dataset = {
+            name: `Arcgis Dataset`,
+            application: ['rw'],
+            connectorType: 'rest',
+            provider: 'featureservice',
+            env: 'production',
+            connectorUrl: 'https://coast.noaa.gov/arcgis/rest/services/sovi/sovi_tracts2010/MapServer/8?f=pjson',
+            overwrite: true
+        };
+
+        const response = await requester
+            .post(`/api/v1/arcgis/query/db8b2fae-3f3e-48e8-a4a6-996d51edf3f3?sql=${encodeURI(query)}`)
+            .send({
+                dataset
+            });
+
+        response.status.should.equal(500);
+        response.body.should.have.property('errors').and.be.an('array');
+        response.body.errors[0].should.have.property('detail').and.equal(`Error in request to ArcGIS server: Failed to execute query.`);
+        response.body.errors[0].should.have.property('requestURL').and.equal(`https://coast.noaa.gov/arcgis/rest/services/sovi/sovi_tracts2010/MapServer/8/query?returnGeometry=false&returnDistinctValues=true&tableName=ea852c8e-4dca-493c-8de2-e2d84d02897f&outFields=FUNCSTAT10&resultRecordCount=10&supportsPagination=true&where=1%3D1&f=json`);
+    });
+
 
     afterEach(() => {
         if (!nock.isDone()) {
