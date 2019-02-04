@@ -1,11 +1,12 @@
-test:
-  extends:
-    file: base.yml
-    service: base
-  ports:
-    - "3055"
-  container_name: adapter-arcgis
-  environment:
-    NODE_ENV: test
-    CT_URL: http://mymachine:9000
-  command: test
+version: "3"
+services:
+  test:
+    build: .
+    ports:
+      - "3055:3055"
+    container_name: adapter-arcgis
+    environment:
+      NODE_ENV: test
+      CT_URL: http://mymachine:9000
+      API_VERSION: v1
+    command: test
