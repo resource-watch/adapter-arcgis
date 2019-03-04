@@ -21,9 +21,11 @@ class ArcgisService {
         }
     }
 
-    static executeQuery(urlDataset, query) {
-        logger.debug(`Doing query`);
-        const reqUrl = `${urlDataset.split('?')[0]}/query${query}&f=json`.replace('http:', 'https:');
+    static buildQueryUrl(urlDataset, query) {
+        return `${urlDataset.split('?')[0]}/query${query}&f=json`.replace('http:', 'https:');
+    }
+
+    static executeQuery(reqUrl) {
         logger.debug('Doing request to ', reqUrl);
         try {
             return request({
