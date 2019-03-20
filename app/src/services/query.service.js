@@ -1,4 +1,5 @@
 const logger = require('logger');
+const ArcgisServerError = require('errors/arcgis-server.error');
 const ArcgisService = require('services/arcgis.service');
 const arcgis = require('terraformer-arcgis-parser');
 const JSONStream = require('JSONStream');
@@ -72,6 +73,11 @@ class QueryService {
                     this.passthrough.write(this.convertObject(data));
                     this.first = false;
                 })
+                .on('header', (header) => {
+                    if ('error' in header) {
+                        reject(new Error(header.error.message));
+                    }
+                })
                 .on('end', () => resolve(count))
                 .on('error', (err) => {
                     logger.error(err);
@@ -96,12 +102,13 @@ class QueryService {
             }
         }
 
-        const request = ArcgisService.executeQuery(this.dataset.connectorUrl, this.sql);
+        const requestURL = ArcgisService.buildQueryUrl(this.dataset.connectorUrl, this.sql);
+        const request = ArcgisService.executeQuery(requestURL);
         try {
             await this.writeRequest(request);
         } catch (err) {
-            logger.error(`Error in request: ${err}`);
-            throw new Error('Error in request');
+            logger.error(`Error in request to ArcGIS server: ${err}`);
+            throw new ArcgisServerError(`Error in request to ArcGIS server: ${err.message}`, requestURL);
         }
 
         const meta = {

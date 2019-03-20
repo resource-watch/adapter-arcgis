@@ -8,6 +8,7 @@ const QueryService = require('services/query.service');
 const FieldSerializer = require('serializers/field.serializer');
 const passThrough = require('stream').PassThrough;
 const ErrorSerializer = require('serializers/error.serializer');
+const ArcgisServerError = require('errors/arcgis-server.error');
 
 const router = new Router({
     prefix: '/arcgis',
@@ -55,8 +56,14 @@ class ArcgisRouter {
             await queryService.execute();
             logger.debug('Finished query');
         } catch (err) {
-            ctx.body = ErrorSerializer.serializeError(err.statusCode || 500, err.error && err.error.error ? err.error.error[0] : err.message);
-            ctx.status = 500;
+            if (err instanceof ArcgisServerError) {
+                ctx.body = ErrorSerializer.serializeArcgisServerErrors(err);
+                ctx.status = 500;
+            } else {
+                ctx.body = ErrorSerializer.serializeError(err.statusCode || 500, err.error && err.error.error ? err.error.error[0] : err.message);
+                ctx.status = 500;
+            }
+
         }
     }
 
