@@ -104,6 +104,12 @@ class ArcgisRouter {
         ctx.body = FieldSerializer.serialize(fields, ctx.request.body.dataset.tableName);
     }
 
+    static async deleteDataset(ctx) {
+        logger.info('Delete featureservice dataset');
+        ctx.body = {};
+        ctx.status = 204;
+    }
+
     static async registerDataset(ctx) {
         logger.info('Registering dataset with data', ctx.request.body);
         try {
@@ -243,5 +249,6 @@ router.post('/query/:dataset', deserializeDataset, queryMiddleware, ArcgisRouter
 router.post('/download/:dataset', deserializeDataset, queryMiddleware, ArcgisRouter.download);
 router.post('/fields/:dataset', deserializeDataset, ArcgisRouter.fields);
 router.post('/rest-datasets/featureservice', ArcgisRouter.registerDataset);
+router.delete('/rest-datasets/featureservice/:dataset', ArcgisRouter.deleteDataset);
 
 module.exports = router;
