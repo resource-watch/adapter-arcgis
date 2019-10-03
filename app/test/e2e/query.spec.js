@@ -6,7 +6,7 @@ const path = require('path');
 
 const should = chai.should();
 
-const { getTestServer } = require('./test-server');
+const { getTestServer } = require('./utils/test-server');
 
 nock.disableNetConnect();
 nock.enableNetConnect(process.env.HOST_IP);
