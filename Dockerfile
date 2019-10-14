@@ -1,4 +1,4 @@
-FROM mhart/alpine-node:7.6
+FROM node:12.11-alpine
 MAINTAINER info@vizzuality.com
 
 ENV NAME adapter-arcgis
