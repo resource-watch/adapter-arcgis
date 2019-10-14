@@ -14,12 +14,12 @@ const router = new Router({
     prefix: '/arcgis',
 });
 
-const serializeObjToQuery = obj => Object.keys(obj).reduce((a, k) => {
+const serializeObjToQuery = (obj) => Object.keys(obj).reduce((a, k) => {
     a.push(`${k}=${encodeURIComponent(obj[k])}`);
     return a;
 }, []).join('&');
 
-const deserializer = obj => (new Promise((resolve, reject) => {
+const deserializer = (obj) => (new Promise((resolve, reject) => {
     new JSONAPIDeserializer({
         keyForAttribute: 'camelCase'
     }).deserialize(obj, (err, data) => {
@@ -165,7 +165,7 @@ const queryMiddleware = async (ctx, next) => {
 
     if (ctx.query.sql || ctx.request.body.sql) {
         logger.debug('Checking sql correct');
-        const params = Object.assign({}, ctx.query, ctx.request.body);
+        const params = { ...ctx.query, ...ctx.request.body };
         options.uri = `/convert/sql2FS?sql=${encodeURI(params.sql)}`;
         if (params.geostore) {
             options.uri += `&geostore=${params.geostore}`;
@@ -217,7 +217,7 @@ const queryMiddleware = async (ctx, next) => {
         }
     } else {
         // fs provided
-        const params = Object.assign({}, ctx.query, ctx.request.body);
+        const params = { ...ctx.query, ...ctx.request.body };
         delete params.dataset;
         delete params.loggedUser;
         if (!params.where) {

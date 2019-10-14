@@ -63,7 +63,7 @@ class QueryService {
             } else {
                 parser = JSONStream.parse('features.*.attributes');
             }
-            request.on('error', err => reject(err));
+            request.on('error', (err) => reject(err));
             request.pipe(parser)
                 .on('data', (data) => {
                     count += 1;
