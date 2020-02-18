@@ -2,8 +2,8 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   labels:
-    name: {name}
-  name: {name}
+    name: arcgis
+  name: arcgis
 spec:
   revisionHistoryLimit: 0
   template:
@@ -11,11 +11,11 @@ spec:
       annotations:
         chaos.alpha.kubernetes.io/enabled: "true"
       labels:
-        name: {name}
+        name: arcgis
     spec:
       containers:
-      - name: {name}
-        image: vizzuality/{name}
+      - name: arcgis
+        image: vizzuality/arcgis
         imagePullPolicy: Always
         resources:
           requests:
@@ -31,7 +31,7 @@ spec:
           - name: NODE_PATH
             value: app/src
           - name: LOCAL_URL
-            value: http://{name}.default.svc.cluster.local:3055
+            value: http://arcgis.default.svc.cluster.local:3055
           - name: CT_URL
             valueFrom:
                 secretKeyRef:
