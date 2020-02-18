@@ -1,10 +1,10 @@
-/* eslint-disable no-unused-vars,no-undef */
+/* eslint-disable no-unused-vars,no-undef,max-len */
 const nock = require('nock');
 const chai = require('chai');
 const fs = require('fs');
 const path = require('path');
 
-const should = chai.should();
+chai.should();
 
 const { getTestServer } = require('./utils/test-server');
 

@@ -68,6 +68,7 @@ class QueryService {
                 .on('data', (data) => {
                     count += 1;
                     if (this.downloadType === 'geojson') {
+                        // eslint-disable-next-line no-param-reassign
                         data = data.map(arcgis.parse);
                     }
                     this.passthrough.write(this.convertObject(data));
