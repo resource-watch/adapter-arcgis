@@ -1,4 +1,4 @@
-FROM node:12.11-alpine
+FROM node:12-alpine
 MAINTAINER info@vizzuality.com
 
 ENV NAME adapter-arcgis
@@ -21,7 +21,7 @@ COPY config /opt/$NAME/config
 WORKDIR /opt/$NAME
 
 COPY ./app /opt/$NAME/app
-RUN chown $USER:$USER /opt/$NAME
+RUN chown -R $USER:$USER /opt/$NAME
 
 # Tell Docker we are going to use this ports
 EXPOSE 3055
