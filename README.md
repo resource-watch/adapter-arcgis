@@ -1,6 +1,6 @@
 # ArcGIS adapter microservice
 
-[![Build Status](https://travis-ci.org/resource-watch/adapter-arcgis.svg?branch=master)](https://travis-ci.org/resource-watch/adapter-arcgis)
+[![Build Status](https://travis-ci.org/resource-watch/adapter-arcgis.svg?branch=develop)](https://travis-ci.org/resource-watch/adapter-arcgis)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/682efc4cf55c6a795782/test_coverage)](https://codeclimate.com/github/resource-watch/adapter-arcgis/test_coverage)
 
 ## Dependencies
@@ -31,14 +31,14 @@ After that, follow one of the instructions below:
 
 1 - Set up your environment variables. See `dev.env.sample` for a list of variables you should set, which are described in detail in [this section](#configuration-environment-variables) of the documentation. Native execution will NOT load the `dev.env` file content, so you need to use another way to define those values
 
-2 - Install node dependencies using NPM:
+2 - Install node dependencies using yarn:
 ```
-npm install
+yarn
 ```
 
 3 - Start the application server:
 ```
-npm start
+yarn start
 ```
 
 The endpoints provided by this microservice should now be available through Control Tower's URL.
