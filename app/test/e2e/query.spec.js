@@ -26,7 +26,7 @@ describe('Query tests', () => {
     it('Query a dataset with "SELECT *" returns data', async () => {
 
         const query = 'SELECT * FROM coddonnees_ouvertes_enMapServer31';
-        const featureServiceResponseFullQuery = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'featureServiceResponseFullQuery.json'), 'utf8'));
+        const featureServiceResponseFullQuery = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'assets/queryTestResponse.json'), 'utf8'));
 
         nock(process.env.CT_URL)
             .get('/v1/convert/sql2FS')
@@ -415,8 +415,5 @@ describe('Query tests', () => {
         if (!nock.isDone()) {
             throw new Error(`Not all nock interceptors were used: ${nock.pendingMocks()}`);
         }
-    });
-
-    after(() => {
     });
 });
