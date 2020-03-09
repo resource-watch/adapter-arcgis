@@ -31,18 +31,20 @@ describe('Query tests', () => {
         nock(process.env.CT_URL)
             .get('/v1/convert/sql2FS')
             .query({
-                sql: query
+                sql: query,
+                excludeGeometries: true
             })
             .reply(200, {
                 data: {
                     type: 'result',
                     id: 'undefined',
                     attributes: {
-                        query: '?outFields=*&tableName=coddonnees_ouvertes_enMapServer31&where=1=1',
+                        query: '?outFields=*&tableName=coddonnees_ouvertes_enMapServer31&where=1=1&returnGeometry=false',
                         fs: {
                             tableName: 'coddonnees_ouvertes_enMapServer31',
                             outFields: '*',
-                            where: '1=1'
+                            where: '1=1',
+                            returnGeometry: false
                         },
                         jsonSql: {
                             select: [
@@ -65,7 +67,8 @@ describe('Query tests', () => {
                 tableName: 'coddonnees_ouvertes_enMapServer31',
                 outFields: '*',
                 where: '1=1',
-                f: 'json'
+                f: 'json',
+                returnGeometry: false
             })
             .reply(200, featureServiceResponseFullQuery);
 
@@ -100,17 +103,21 @@ describe('Query tests', () => {
 
         nock(process.env.CT_URL)
             .get('/v1/convert/sql2FS')
-            .query({ sql: query })
+            .query({
+                sql: query,
+                excludeGeometries: true
+            })
             .reply(200, {
                 data: {
                     type: 'result',
                     id: 'undefined',
                     attributes: {
-                        query: '?outStatistics=[{"statisticType":"min","onStatisticField":"shape_Length","outStatisticFieldName":"min"},{"statisticType":"max","onStatisticField":"shape_Length","outStatisticFieldName":"max"}]&tableName=coddonnees_ouvertes_enMapServer31&where=1=1',
+                        query: '?outStatistics=[{"statisticType":"min","onStatisticField":"shape_Length","outStatisticFieldName":"min"},{"statisticType":"max","onStatisticField":"shape_Length","outStatisticFieldName":"max"}]&tableName=coddonnees_ouvertes_enMapServer31&where=1=1&returnGeometry=false',
                         fs: {
                             outStatistics: '[{"statisticType":"min","onStatisticField":"shape_Length","outStatisticFieldName":"min"},{"statisticType":"max","onStatisticField":"shape_Length","outStatisticFieldName":"max"}]',
                             tableName: 'coddonnees_ouvertes_enMapServer31',
-                            where: '1=1'
+                            where: '1=1',
+                            returnGeometry: false
                         },
                         jsonSql: {
                             select: [
@@ -150,7 +157,8 @@ describe('Query tests', () => {
                 outStatistics: '[{"statisticType":"min","onStatisticField":"shape_Length","outStatisticFieldName":"min"},{"statisticType":"max","onStatisticField":"shape_Length","outStatisticFieldName":"max"}]',
                 tableName: 'coddonnees_ouvertes_enMapServer31',
                 where: '1=1',
-                f: 'json'
+                f: 'json',
+                returnGeometry: false
             })
             .reply(200, {
                 displayFieldName: '',
@@ -213,20 +221,24 @@ describe('Query tests', () => {
 
         nock(process.env.CT_URL)
             .get('/v1/convert/sql2FS')
-            .query({ sql: query })
+            .query({
+                sql: query,
+                excludeGeometries: true
+            })
             .reply(200, {
                 data: {
                     type: 'result',
                     id: 'undefined',
                     attributes: {
-                        query: '?outFields=tcl_name,area_ha&tableName=conservationMapServer3&where=tcl_name LIKE \'%ba%\'&orderByFields=area_ha&resultRecordCount=50&supportsPagination=true',
+                        query: '?outFields=tcl_name,area_ha&tableName=conservationMapServer3&where=tcl_name LIKE \'%ba%\'&orderByFields=area_ha&resultRecordCount=50&supportsPagination=true&returnGeometry=false',
                         fs: {
                             tableName: 'conservationMapServer3',
                             outFields: 'tcl_name,area_ha',
                             orderByFields: 'area_ha',
                             resultRecordCount: 50,
                             supportsPagination: true,
-                            where: 'tcl_name LIKE \'%ba%\''
+                            where: 'tcl_name LIKE \'%ba%\'',
+                            returnGeometry: false
                         },
                         jsonSql: {
                             select: [{
@@ -261,7 +273,8 @@ describe('Query tests', () => {
                     resultRecordCount: '50',
                     supportsPagination: 'true',
                     where: 'tcl_name LIKE \'%ba%\'',
-                    f: 'json'
+                    f: 'json',
+                    returnGeometry: false
                 }
             )
             .reply(200, {
@@ -343,7 +356,10 @@ describe('Query tests', () => {
 
         nock(process.env.CT_URL)
             .get('/v1/convert/sql2FS')
-            .query({ sql: query })
+            .query({
+                sql: query,
+                excludeGeometries: true
+            })
             .reply(200, {
                 data: {
                     type: 'result',
@@ -372,20 +388,19 @@ describe('Query tests', () => {
                 }
             });
 
-
         nock('https://coast.noaa.gov')
             .get('/arcgis/rest/services/sovi/sovi_tracts2010/MapServer/8/query')
             .query({
-                returnGeometry: 'false',
                 returnDistinctValues: 'true',
                 tableName: 'ea852c8e-4dca-493c-8de2-e2d84d02897f',
                 outFields: 'FUNCSTAT10',
                 resultRecordCount: '10',
                 supportsPagination: 'true',
                 where: '1=1',
-                f: 'json'
+                f: 'json',
+                returnGeometry: false
             })
-            .reply(200, { error: { code: 400, message: 'Failed to execute query.', details: [] } });
+            .reply(200, { error: { code: 400, message: 'Expected failure for testing purposes.', details: [] } });
 
 
         const dataset = {
@@ -406,7 +421,7 @@ describe('Query tests', () => {
 
         response.status.should.equal(500);
         response.body.should.have.property('errors').and.be.an('array');
-        response.body.errors[0].should.have.property('detail').and.equal(`Error in request to ArcGIS server: Failed to execute query.`);
+        response.body.errors[0].should.have.property('detail').and.equal(`Error in request to ArcGIS server: Expected failure for testing purposes.`);
         response.body.errors[0].should.have.property('requestURL').and.equal(`https://coast.noaa.gov/arcgis/rest/services/sovi/sovi_tracts2010/MapServer/8/query?returnGeometry=false&returnDistinctValues=true&tableName=ea852c8e-4dca-493c-8de2-e2d84d02897f&outFields=FUNCSTAT10&resultRecordCount=10&supportsPagination=true&where=1%3D1&f=json`);
     });
 

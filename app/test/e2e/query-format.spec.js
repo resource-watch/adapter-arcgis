@@ -31,19 +31,21 @@ describe('Query with different response formats tests', () => {
         nock(process.env.CT_URL)
             .get('/v1/convert/sql2FS')
             .query({
-                sql: query
+                sql: query,
+                excludeGeometries: true
             })
             .reply(200, {
                 data: {
                     type: 'result',
                     attributes: {
-                        query: '?outFields=Category_EN,PA_Area_ha_KA&tableName=atlasprotected_areasMapServer4&where=1=1&resultRecordCount=20&supportsPagination=true',
+                        query: '?outFields=Category_EN,PA_Area_ha_KA&tableName=atlasprotected_areasMapServer4&where=1=1&resultRecordCount=20&supportsPagination=true&returnGeometry=false',
                         fs: {
                             tableName: 'atlasprotected_areasMapServer4',
                             outFields: 'Category_EN,PA_Area_ha_KA',
                             resultRecordCount: 20,
                             supportsPagination: true,
-                            where: '1=1'
+                            where: '1=1',
+                            returnGeometry: false
                         },
                         jsonSql: {
                             select: [{
@@ -66,7 +68,8 @@ describe('Query with different response formats tests', () => {
                 resultRecordCount: '20',
                 supportsPagination: 'true',
                 where: '1=1',
-                f: 'json'
+                f: 'json',
+                returnGeometry: false
             })
             .reply(200, featureServiceResponseFullQuery);
 
@@ -83,8 +86,7 @@ describe('Query with different response formats tests', () => {
         const response = await requester
             .post(`/api/v1/arcgis/query/db8b2fae-3f3e-48e8-a4a6-996d51edf3f3`)
             .query({
-                sql: query,
-                format: 'json'
+                sql: query
             })
             .send({
                 dataset
@@ -111,19 +113,21 @@ describe('Query with different response formats tests', () => {
         nock(process.env.CT_URL)
             .get('/v1/convert/sql2FS')
             .query({
-                sql: query
+                sql: query,
+                excludeGeometries: true
             })
             .reply(200, {
                 data: {
                     type: 'result',
                     attributes: {
-                        query: '?outFields=Category_EN,PA_Area_ha_KA&tableName=atlasprotected_areasMapServer4&where=1=1&resultRecordCount=20&supportsPagination=true',
+                        query: '?outFields=Category_EN,PA_Area_ha_KA&tableName=atlasprotected_areasMapServer4&where=1=1&resultRecordCount=20&supportsPagination=true&returnGeometry=false',
                         fs: {
                             tableName: 'atlasprotected_areasMapServer4',
                             outFields: 'Category_EN,PA_Area_ha_KA',
                             resultRecordCount: 20,
                             supportsPagination: true,
-                            where: '1=1'
+                            where: '1=1',
+                            returnGeometry: false
                         },
                         jsonSql: {
                             select: [{
@@ -146,7 +150,8 @@ describe('Query with different response formats tests', () => {
                 resultRecordCount: '20',
                 supportsPagination: 'true',
                 where: '1=1',
-                f: 'json'
+                f: 'json',
+                returnGeometry: false
             })
             .reply(200, featureServiceResponseFullQuery);
 
@@ -197,13 +202,14 @@ describe('Query with different response formats tests', () => {
                 data: {
                     type: 'result',
                     attributes: {
-                        query: '?outFields=Category_EN,PA_Area_ha_KA&tableName=atlasprotected_areasMapServer4&where=1=1&resultRecordCount=20&supportsPagination=true',
+                        query: '?outFields=Category_EN,PA_Area_ha_KA&tableName=atlasprotected_areasMapServer4&where=1=1&resultRecordCount=20&supportsPagination=true&returnGeometry=true',
                         fs: {
                             tableName: 'atlasprotected_areasMapServer4',
                             outFields: 'Category_EN,PA_Area_ha_KA',
                             resultRecordCount: 20,
                             supportsPagination: true,
-                            where: '1=1'
+                            where: '1=1',
+                            returnGeometry: true
                         },
                         jsonSql: {
                             select: [{
@@ -226,7 +232,8 @@ describe('Query with different response formats tests', () => {
                 resultRecordCount: '20',
                 supportsPagination: 'true',
                 where: '1=1',
-                f: 'json'
+                f: 'json',
+                returnGeometry: true
             })
             .reply(200, featureServiceResponseFullQuery);
 

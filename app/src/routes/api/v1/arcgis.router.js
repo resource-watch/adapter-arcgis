@@ -177,6 +177,14 @@ const queryMiddleware = async (ctx, next) => {
             };
         }
 
+        if (params.format !== 'geojson') {
+            if (options.method === 'POST') {
+                options.excludeGeometries = true;
+            } else {
+                options.uri += `&excludeGeometries=true`;
+            }
+        }
+
         try {
             const result = await ctRegisterMicroservice.requestToMicroservice(options);
 
