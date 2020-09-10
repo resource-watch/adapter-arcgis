@@ -1,6 +1,6 @@
 # ArcGIS adapter microservice
 
-[![Build Status](https://travis-ci.org/resource-watch/adapter-arcgis.svg?branch=develop)](https://travis-ci.org/resource-watch/adapter-arcgis)
+[![Build Status](https://travis-ci.org/resource-watch/adapter-arcgis.svg?branch=dev)](https://travis-ci.org/resource-watch/adapter-arcgis)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/682efc4cf55c6a795782/test_coverage)](https://codeclimate.com/github/resource-watch/adapter-arcgis/test_coverage)
 
 ## Dependencies
