@@ -1,12 +1,12 @@
-/* eslint-disable no-unused-vars,no-undef,max-len */
+/* eslint-disable max-len */
 const nock = require('nock');
 const chai = require('chai');
 const fs = require('fs');
 const path = require('path');
+const { getTestServer } = require('./utils/test-server');
+const { createMockGetDataset } = require('./utils/helpers');
 
 chai.should();
-
-const { getTestServer } = require('./utils/test-server');
 
 nock.disableNetConnect();
 nock.enableNetConnect(process.env.HOST_IP);
@@ -24,6 +24,9 @@ describe('Query tests', () => {
     });
 
     it('Query a dataset with "SELECT *" returns data', async () => {
+        const datasetId = new Date().getTime();
+
+        createMockGetDataset(datasetId);
 
         const query = 'SELECT * FROM coddonnees_ouvertes_enMapServer31';
         const featureServiceResponseFullQuery = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'assets/queryTestResponse.json'), 'utf8'));
@@ -61,8 +64,8 @@ describe('Query tests', () => {
                 }
             });
 
-        nock('https://gis.forest-atlas.org')
-            .get('/server/rest/services/cod/donnees_ouvertes_en/MapServer/31/query')
+        nock('https://coast.noaa.gov')
+            .get('/arcgis/rest/services/sovi/sovi_tracts2010/MapServer/16/query')
             .query({
                 tableName: 'coddonnees_ouvertes_enMapServer31',
                 outFields: '*',
@@ -72,21 +75,10 @@ describe('Query tests', () => {
             })
             .reply(200, featureServiceResponseFullQuery);
 
-        const dataset = {
-            name: `Arcgis Dataset`,
-            application: ['rw'],
-            connectorType: 'rest',
-            provider: 'cartodb',
-            env: 'production',
-            connectorUrl: 'https://gis.forest-atlas.org/server/rest/services/cod/donnees_ouvertes_en/MapServer/31?f=pjson',
-            overwrite: true
-        };
-
         const response = await requester
-            .post(`/api/v1/arcgis/query/db8b2fae-3f3e-48e8-a4a6-996d51edf3f3?sql=${query}`)
-            .send({
-                dataset
-            });
+            .post(`/api/v1/arcgis/query/${datasetId}`)
+            .query({ sql: query })
+            .send();
 
         response.status.should.equal(200);
         response.body.should.have.property('data').and.be.an('array');
@@ -98,6 +90,9 @@ describe('Query tests', () => {
     });
 
     it('Query a dataset with min() and max() calls returns data', async () => {
+        const datasetId = new Date().getTime();
+
+        createMockGetDataset(datasetId);
 
         const query = 'SELECT min(shape_Length) AS min, max(shape_Length) AS max FROM coddonnees_ouvertes_enMapServer31';
 
@@ -151,8 +146,8 @@ describe('Query tests', () => {
                 }
             });
 
-        nock('https://gis.forest-atlas.org')
-            .get('/server/rest/services/cod/donnees_ouvertes_en/MapServer/31/query')
+        nock('https://coast.noaa.gov')
+            .get('/arcgis/rest/services/sovi/sovi_tracts2010/MapServer/16/query')
             .query({
                 outStatistics: '[{"statisticType":"min","onStatisticField":"shape_Length","outStatisticFieldName":"min"},{"statisticType":"max","onStatisticField":"shape_Length","outStatisticFieldName":"max"}]',
                 tableName: 'coddonnees_ouvertes_enMapServer31',
@@ -188,22 +183,10 @@ describe('Query tests', () => {
                 ]
             });
 
-        const dataset = {
-            name: `Arcgis Dataset`,
-            application: ['rw'],
-            connectorType: 'rest',
-            provider: 'cartodb',
-            env: 'production',
-            connectorUrl: 'https://gis.forest-atlas.org/server/rest/services/cod/donnees_ouvertes_en/MapServer/31?f=pjson',
-            overwrite: true
-        };
-
         const response = await requester
-            .post(`/api/v1/arcgis/query/db8b2fae-3f3e-48e8-a4a6-996d51edf3f3?sql=${query}`)
-            .send({
-                dataset,
-                // loggedUser: ROLES.ADMIN
-            });
+            .post(`/api/v1/arcgis/query/${datasetId}`)
+            .query({ sql: query })
+            .send();
 
         response.status.should.equal(200);
         response.body.should.have.property('data').and.be.an('array');
@@ -216,6 +199,9 @@ describe('Query tests', () => {
     });
 
     it('Query a dataset with "WHERE LIKE \'%%\'" calls returns data', async () => {
+        const datasetId = new Date().getTime();
+
+        createMockGetDataset(datasetId);
 
         const query = 'SELECT tcl_name as x, area_ha as y FROM conservationMapServer3 WHERE tcl_name LIKE \'%ba%\'  ORDER BY area_ha desc LIMIT 50';
 
@@ -263,8 +249,8 @@ describe('Query tests', () => {
                 }
             });
 
-        nock('https://gis-gfw.wri.org')
-            .get('/arcgis/rest/services/conservation/MapServer/3/query')
+        nock('https://coast.noaa.gov')
+            .get('/arcgis/rest/services/sovi/sovi_tracts2010/MapServer/16/query')
             .query(
                 {
                     tableName: 'conservationMapServer3',
@@ -309,21 +295,10 @@ describe('Query tests', () => {
                 }]
             });
 
-        const dataset = {
-            name: `Arcgis Dataset`,
-            application: ['rw'],
-            connectorType: 'rest',
-            provider: 'cartodb',
-            env: 'production',
-            connectorUrl: 'http://gis-gfw.wri.org/arcgis/rest/services/conservation/MapServer/3?f=pjson',
-            overwrite: true
-        };
-
         const response = await requester
-            .post(`/api/v1/arcgis/query/db8b2fae-3f3e-48e8-a4a6-996d51edf3f3?sql=${encodeURI(query)}`)
-            .send({
-                dataset
-            });
+            .post(`/api/v1/arcgis/query/${datasetId}`)
+            .query({ sql: query })
+            .send();
 
         response.status.should.equal(200);
         response.body.should.have.property('data').and.be.an('array').and.have.lengthOf(6);
@@ -351,6 +326,9 @@ describe('Query tests', () => {
     });
 
     it('Unsupported ArcGIS queries return an error', async () => {
+        const datasetId = new Date().getTime();
+
+        createMockGetDataset(datasetId);
 
         const query = 'SELECT DISTINCT FUNCSTAT10 FROM ea852c8e-4dca-493c-8de2-e2d84d02897f LIMIT 10';
 
@@ -389,7 +367,7 @@ describe('Query tests', () => {
             });
 
         nock('https://coast.noaa.gov')
-            .get('/arcgis/rest/services/sovi/sovi_tracts2010/MapServer/8/query')
+            .get('/arcgis/rest/services/sovi/sovi_tracts2010/MapServer/16/query')
             .query({
                 returnDistinctValues: 'true',
                 tableName: 'ea852c8e-4dca-493c-8de2-e2d84d02897f',
@@ -402,29 +380,16 @@ describe('Query tests', () => {
             })
             .reply(200, { error: { code: 400, message: 'Expected failure for testing purposes.', details: [] } });
 
-
-        const dataset = {
-            name: `Arcgis Dataset`,
-            application: ['rw'],
-            connectorType: 'rest',
-            provider: 'featureservice',
-            env: 'production',
-            connectorUrl: 'https://coast.noaa.gov/arcgis/rest/services/sovi/sovi_tracts2010/MapServer/8?f=pjson',
-            overwrite: true
-        };
-
         const response = await requester
-            .post(`/api/v1/arcgis/query/db8b2fae-3f3e-48e8-a4a6-996d51edf3f3?sql=${encodeURI(query)}`)
-            .send({
-                dataset
-            });
+            .post(`/api/v1/arcgis/query/${datasetId}`)
+            .query({ sql: query })
+            .send();
 
         response.status.should.equal(500);
         response.body.should.have.property('errors').and.be.an('array');
         response.body.errors[0].should.have.property('detail').and.equal(`Error in request to ArcGIS server: Expected failure for testing purposes.`);
-        response.body.errors[0].should.have.property('requestURL').and.equal(`https://coast.noaa.gov/arcgis/rest/services/sovi/sovi_tracts2010/MapServer/8/query?returnGeometry=false&returnDistinctValues=true&tableName=ea852c8e-4dca-493c-8de2-e2d84d02897f&outFields=FUNCSTAT10&resultRecordCount=10&supportsPagination=true&where=1%3D1&f=json`);
+        response.body.errors[0].should.have.property('requestURL').and.equal(`https://coast.noaa.gov/arcgis/rest/services/sovi/sovi_tracts2010/MapServer/16/query?returnGeometry=false&returnDistinctValues=true&tableName=ea852c8e-4dca-493c-8de2-e2d84d02897f&outFields=FUNCSTAT10&resultRecordCount=10&supportsPagination=true&where=1%3D1&f=json`);
     });
-
 
     afterEach(() => {
         if (!nock.isDone()) {

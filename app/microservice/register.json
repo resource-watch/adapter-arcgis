@@ -11,133 +11,48 @@
   ],
   "endpoints": [
     {
-      "path": "/v1/query/:dataset",
+      "path": "/v1/query/featureservice/:dataset",
       "method": "GET",
       "binary": true,
       "redirect": {
         "method": "POST",
         "path": "/api/v1/arcgis/query/:dataset"
-      },
-      "filters": [
-        {
-          "name": "dataset",
-          "path": "/v1/dataset/:dataset",
-          "method": "GET",
-          "params": {
-            "dataset": "dataset"
-          },
-          "compare": {
-            "data": {
-              "attributes": {
-                "provider": "featureservice"
-              }
-            }
-          }
-        }
-      ]
+      }
     },
     {
-      "path": "/v1/query/:dataset",
+      "path": "/v1/query/featureservice/:dataset",
       "method": "POST",
       "binary": true,
       "redirect": {
         "method": "POST",
         "path": "/api/v1/arcgis/query/:dataset"
-      },
-      "filters": [
-        {
-          "name": "dataset",
-          "path": "/v1/dataset/:dataset",
-          "method": "GET",
-          "params": {
-            "dataset": "dataset"
-          },
-          "compare": {
-            "data": {
-              "attributes": {
-                "provider": "featureservice"
-              }
-            }
-          }
-        }
-      ]
+      }
     },
     {
-      "path": "/v1/download/:dataset",
+      "path": "/v1/download/featureservice/:dataset",
       "method": "GET",
       "binary": true,
       "redirect": {
         "method": "POST",
         "path": "/api/v1/arcgis/download/:dataset"
-      },
-      "filters": [
-        {
-          "name": "dataset",
-          "path": "/v1/dataset/:dataset",
-          "method": "GET",
-          "params": {
-            "dataset": "dataset"
-          },
-          "compare": {
-            "data": {
-              "attributes": {
-                "provider": "featureservice"
-              }
-            }
-          }
-        }
-      ]
+      }
     },
     {
-      "path": "/v1/download/:dataset",
+      "path": "/v1/download/featureservice/:dataset",
       "method": "POST",
       "binary": true,
       "redirect": {
         "method": "POST",
         "path": "/api/v1/arcgis/download/:dataset"
-      },
-      "filters": [
-        {
-          "name": "dataset",
-          "path": "/v1/dataset/:dataset",
-          "method": "GET",
-          "params": {
-            "dataset": "dataset"
-          },
-          "compare": {
-            "data": {
-              "attributes": {
-                "provider": "featureservice"
-              }
-            }
-          }
-        }
-      ]
+      }
     },
     {
-      "path": "/v1/fields/:dataset",
+      "path": "/v1/fields/featureservice/:dataset",
       "method": "GET",
       "redirect": {
         "method": "POST",
         "path": "/api/v1/arcgis/fields/:dataset"
-      },
-      "filters": [
-        {
-          "name": "dataset",
-          "path": "/v1/dataset/:dataset",
-          "method": "GET",
-          "params": {
-            "dataset": "dataset"
-          },
-          "compare": {
-            "data": {
-              "attributes": {
-                "provider": "featureservice"
-              }
-            }
-          }
-        }
-      ]
+      }
     },
     {
       "path": "/v1/rest-datasets/featureservice",

@@ -1,4 +1,3 @@
-
 module.exports = (grunt) => {
 
     grunt.file.setBase('..');
@@ -83,7 +82,6 @@ module.exports = (grunt) => {
             }
         }
     });
-
 
     grunt.registerTask('unitTest', ['mochaTest:unit']);
 

@@ -1,12 +1,12 @@
-/* eslint-disable no-undef,max-len */
+/* eslint-disable max-len */
 const nock = require('nock');
 const chai = require('chai');
 const fs = require('fs');
 const path = require('path');
+const { getTestServer } = require('./utils/test-server');
+const { createMockGetDataset } = require('./utils/helpers');
 
 chai.should();
-
-const { getTestServer } = require('./utils/test-server');
 
 nock.disableNetConnect();
 nock.enableNetConnect(process.env.HOST_IP);
@@ -23,7 +23,50 @@ describe('Query with different response formats tests', () => {
         nock.cleanAll();
     });
 
+    it('Query to dataset without connectorType document should fail', async () => {
+        const datasetId = new Date().getTime();
+
+        createMockGetDataset(datasetId, { connectorType: 'foo' });
+
+        const requestBody = {
+            loggedUser: null
+        };
+
+        const query = `select * from ${datasetId}`;
+
+        const queryResponse = await requester
+            .post(`/api/v1/arcgis/query/${datasetId}?sql=${encodeURI(query)}`)
+            .send(requestBody);
+
+        queryResponse.status.should.equal(422);
+        queryResponse.body.should.have.property('errors').and.be.an('array').and.have.lengthOf(1);
+        queryResponse.body.errors[0].detail.should.include('This operation is only supported for datasets with connectorType \'rest\'');
+    });
+
+    it('Query to dataset without a supported provider should fail', async () => {
+        const datasetId = new Date().getTime();
+
+        createMockGetDataset(datasetId, { provider: 'foo' });
+
+        const requestBody = {
+            loggedUser: null
+        };
+
+        const query = `select * from ${datasetId}`;
+
+        const queryResponse = await requester
+            .post(`/api/v1/arcgis/query/${datasetId}?sql=${encodeURI(query)}`)
+            .send(requestBody);
+
+        queryResponse.status.should.equal(422);
+        queryResponse.body.should.have.property('errors').and.be.an('array').and.have.lengthOf(1);
+        queryResponse.body.errors[0].detail.should.include('This operation is only supported for datasets with provider \'featureservice\'');
+    });
+
     it('Query a dataset with no format uses json format by default', async () => {
+        const datasetId = new Date().getTime();
+
+        createMockGetDataset(datasetId);
 
         const query = 'SELECT Category_EN, PA_Area_ha_KA FROM atlasprotected_areasMapServer4 LIMIT 20';
         const featureServiceResponseFullQuery = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'assets/queryFormatTestResponse.json'), 'utf8'));
@@ -60,8 +103,8 @@ describe('Query with different response formats tests', () => {
                 }
             });
 
-        nock('https://gis.mepa.gov.ge')
-            .get('/server/rest/services/atlas/protected_areas/MapServer/4/query')
+        nock('https://coast.noaa.gov')
+            .get('/arcgis/rest/services/sovi/sovi_tracts2010/MapServer/16/query')
             .query({
                 tableName: 'atlasprotected_areasMapServer4',
                 outFields: 'Category_EN,PA_Area_ha_KA',
@@ -73,24 +116,12 @@ describe('Query with different response formats tests', () => {
             })
             .reply(200, featureServiceResponseFullQuery);
 
-        const dataset = {
-            name: `Arcgis Dataset`,
-            application: ['rw'],
-            connectorType: 'rest',
-            provider: 'featureservice',
-            env: 'production',
-            connectorUrl: 'https://gis.mepa.gov.ge/server/rest/services/atlas/protected_areas/MapServer/4?f=pjson',
-            overwrite: true
-        };
-
         const response = await requester
-            .post(`/api/v1/arcgis/query/db8b2fae-3f3e-48e8-a4a6-996d51edf3f3`)
+            .post(`/api/v1/arcgis/query/${datasetId}`)
             .query({
                 sql: query
             })
-            .send({
-                dataset
-            });
+            .send();
 
         response.status.should.equal(200);
         response.body.should.have.property('data').and.be.an('array').and.length(20);
@@ -106,6 +137,9 @@ describe('Query with different response formats tests', () => {
     });
 
     it('Query a dataset with explicit json format returns the queried field values', async () => {
+        const datasetId = new Date().getTime();
+
+        createMockGetDataset(datasetId);
 
         const query = 'SELECT Category_EN, PA_Area_ha_KA FROM atlasprotected_areasMapServer4 LIMIT 20';
         const featureServiceResponseFullQuery = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'assets/queryFormatTestResponse.json'), 'utf8'));
@@ -142,8 +176,8 @@ describe('Query with different response formats tests', () => {
                 }
             });
 
-        nock('https://gis.mepa.gov.ge')
-            .get('/server/rest/services/atlas/protected_areas/MapServer/4/query')
+        nock('https://coast.noaa.gov')
+            .get('/arcgis/rest/services/sovi/sovi_tracts2010/MapServer/16/query')
             .query({
                 tableName: 'atlasprotected_areasMapServer4',
                 outFields: 'Category_EN,PA_Area_ha_KA',
@@ -155,25 +189,13 @@ describe('Query with different response formats tests', () => {
             })
             .reply(200, featureServiceResponseFullQuery);
 
-        const dataset = {
-            name: `Arcgis Dataset`,
-            application: ['rw'],
-            connectorType: 'rest',
-            provider: 'featureservice',
-            env: 'production',
-            connectorUrl: 'https://gis.mepa.gov.ge/server/rest/services/atlas/protected_areas/MapServer/4?f=pjson',
-            overwrite: true
-        };
-
         const response = await requester
-            .post(`/api/v1/arcgis/query/db8b2fae-3f3e-48e8-a4a6-996d51edf3f3`)
+            .post(`/api/v1/arcgis/query/${datasetId}`)
             .query({
                 sql: query,
                 format: 'json'
             })
-            .send({
-                dataset
-            });
+            .send();
 
         response.status.should.equal(200);
         response.body.should.have.property('data').and.be.an('array').and.length(20);
@@ -189,6 +211,9 @@ describe('Query with different response formats tests', () => {
     });
 
     it('Query a dataset with explicit geojson format returns the queried field values', async () => {
+        const datasetId = new Date().getTime();
+
+        createMockGetDataset(datasetId);
 
         const query = 'SELECT Category_EN, PA_Area_ha_KA FROM atlasprotected_areasMapServer4 LIMIT 20';
         const featureServiceResponseFullQuery = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'assets/queryFormatTestResponse.json'), 'utf8'));
@@ -224,8 +249,8 @@ describe('Query with different response formats tests', () => {
                 }
             });
 
-        nock('https://gis.mepa.gov.ge')
-            .get('/server/rest/services/atlas/protected_areas/MapServer/4/query')
+        nock('https://coast.noaa.gov')
+            .get('/arcgis/rest/services/sovi/sovi_tracts2010/MapServer/16/query')
             .query({
                 tableName: 'atlasprotected_areasMapServer4',
                 outFields: 'Category_EN,PA_Area_ha_KA',
@@ -237,25 +262,13 @@ describe('Query with different response formats tests', () => {
             })
             .reply(200, featureServiceResponseFullQuery);
 
-        const dataset = {
-            name: `Arcgis Dataset`,
-            application: ['rw'],
-            connectorType: 'rest',
-            provider: 'featureservice',
-            env: 'production',
-            connectorUrl: 'https://gis.mepa.gov.ge/server/rest/services/atlas/protected_areas/MapServer/4?f=pjson',
-            overwrite: true
-        };
-
         const response = await requester
-            .post(`/api/v1/arcgis/query/db8b2fae-3f3e-48e8-a4a6-996d51edf3f3`)
+            .post(`/api/v1/arcgis/query/${datasetId}`)
             .query({
                 sql: query,
                 format: 'geojson'
             })
-            .send({
-                dataset
-            });
+            .send();
 
         response.status.should.equal(200);
         response.body.should.have.property('data').and.be.an('array').and.length(1);
@@ -270,7 +283,6 @@ describe('Query with different response formats tests', () => {
             elem.properties.should.have.property('PA_Area_ha_KA').and.be.a('number');
 
             elem.should.have.property('bbox').and.be.an('array').and.length(4);
-
 
         });
         response.body.should.have.property('meta').and.be.an('object');
