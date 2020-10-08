@@ -15,9 +15,7 @@ const koaBody = require('koa-body')({
     textLimit: '50mb'
 });
 
-
 const app = new Koa();
-
 
 app.use(convert(koaBody));
 
@@ -52,7 +50,6 @@ app.use(koaSimpleHealthCheck());
 
 loader.loadRoutes(app);
 
-
 const instance = app.listen(process.env.PORT, () => {
     ctRegisterMicroservice.register({
         info: require('../microservice/register.json'),
@@ -73,6 +70,5 @@ const instance = app.listen(process.env.PORT, () => {
     });
 });
 logger.info('Server started in ', process.env.PORT);
-
 
 module.exports = instance;

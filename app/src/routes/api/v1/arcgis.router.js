@@ -1,14 +1,13 @@
 const Router = require('koa-router');
 const logger = require('logger');
 const ctRegisterMicroservice = require('ct-register-microservice-node');
-const JSONAPIDeserializer = require('jsonapi-serializer').Deserializer;
-const Promise = require('bluebird');
 const ArcgisService = require('services/arcgis.service');
 const QueryService = require('services/query.service');
 const FieldSerializer = require('serializers/field.serializer');
 const passThrough = require('stream').PassThrough;
 const ErrorSerializer = require('serializers/error.serializer');
 const ArcgisServerError = require('errors/arcgis-server.error');
+const DatasetMiddleware = require('middleware/dataset.middleware');
 
 const router = new Router({
     prefix: '/arcgis',
@@ -18,18 +17,6 @@ const serializeObjToQuery = (obj) => Object.keys(obj).reduce((a, k) => {
     a.push(`${k}=${encodeURIComponent(obj[k])}`);
     return a;
 }, []).join('&');
-
-const deserializer = (obj) => (new Promise((resolve, reject) => {
-    new JSONAPIDeserializer({
-        keyForAttribute: 'camelCase'
-    }).deserialize(obj, (err, data) => {
-        if (err) {
-            reject(err);
-            return;
-        }
-        resolve(data);
-    });
-}));
 
 class ArcgisRouter {
 
@@ -142,15 +129,6 @@ class ArcgisRouter {
 
 }
 
-const deserializeDataset = async (ctx, next) => {
-    if (ctx.request.body.dataset && ctx.request.body.dataset.data) {
-        ctx.request.body.dataset = await deserializer(ctx.request.body.dataset);
-    } else if (ctx.request.body.dataset && ctx.request.body.dataset.table_name) {
-        ctx.request.body.dataset.tableName = ctx.request.body.dataset.table_name;
-    }
-    await next();
-};
-
 const queryMiddleware = async (ctx, next) => {
     const options = {
         method: 'GET',
@@ -253,9 +231,9 @@ const queryMiddleware = async (ctx, next) => {
     await next();
 };
 
-router.post('/query/:dataset', deserializeDataset, queryMiddleware, ArcgisRouter.query);
-router.post('/download/:dataset', deserializeDataset, queryMiddleware, ArcgisRouter.download);
-router.post('/fields/:dataset', deserializeDataset, ArcgisRouter.fields);
+router.post('/query/:dataset', DatasetMiddleware.getDatasetById, queryMiddleware, ArcgisRouter.query);
+router.post('/download/:dataset', DatasetMiddleware.getDatasetById, queryMiddleware, ArcgisRouter.download);
+router.post('/fields/:dataset', DatasetMiddleware.getDatasetById, ArcgisRouter.fields);
 router.post('/rest-datasets/featureservice', ArcgisRouter.registerDataset);
 router.delete('/rest-datasets/featureservice/:dataset', ArcgisRouter.deleteDataset);
 

@@ -1,3 +1,7 @@
+## 08/10/2020
+
+- Remove dependency on Control Tower's filter functionality.
+
 # v1.2.0
 
 ## 09/04/2020

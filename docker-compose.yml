@@ -9,5 +9,5 @@ prod:
   restart: always
   log_driver: "syslog"
   log_opt:
-      syslog-address: ${SYSLOG_ADDRESS}
-      tag: adapter-arcgis${STAGING}
+    syslog-address: ${SYSLOG_ADDRESS}
+    tag: adapter-arcgis${STAGING}

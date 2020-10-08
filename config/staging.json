@@ -1,10 +1,10 @@
 {
-    "logger": {
-        "name": "adapter-arcgis",
-        "level": "info",
-        "toFile": false,
-        "dirLogFile": null
-    },
-    "service": {
-    }
+  "logger": {
+    "name": "adapter-arcgis",
+    "level": "info",
+    "toFile": false,
+    "dirLogFile": null
+  },
+  "service": {
+  }
 }

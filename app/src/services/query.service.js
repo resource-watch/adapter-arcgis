@@ -132,7 +132,6 @@ class QueryService {
         this.passthrough.end();
     }
 
-
 }
 
 module.exports = QueryService;
