@@ -1,6 +1,12 @@
-## 08/10/2020
+# v1.3.0
+
+## 17/11/2020
 
 - Remove dependency on Control Tower's filter functionality.
+- Security update NPM package `yargs-parser` from 13.1.1 to 13.1.2.
+- Security update NPM package `lodash` from 4.17.15 to 4.17.20.
+- Security update NPM package `dot-prop` from 4.2.0 to 4.2.1.
+
 
 # v1.2.0
 
