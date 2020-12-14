@@ -1,6 +1,6 @@
 const Router = require('koa-router');
 const logger = require('logger');
-const ctRegisterMicroservice = require('ct-register-microservice-node');
+const { RWAPIMicroservice } = require('rw-api-microservice-node');
 const ArcgisService = require('services/arcgis.service');
 const QueryService = require('services/query.service');
 const FieldSerializer = require('serializers/field.serializer');
@@ -101,7 +101,7 @@ class ArcgisRouter {
         logger.info('Registering dataset with data', ctx.request.body);
         try {
             await ArcgisService.getFields(ctx.request.body.connector.connector_url);
-            await ctRegisterMicroservice.requestToMicroservice({
+            await RWAPIMicroservice.requestToMicroservice({
                 method: 'PATCH',
                 uri: `/dataset/${ctx.request.body.connector.id}`,
                 body: {
@@ -112,7 +112,7 @@ class ArcgisRouter {
                 json: true
             });
         } catch (e) {
-            await ctRegisterMicroservice.requestToMicroservice({
+            await RWAPIMicroservice.requestToMicroservice({
                 method: 'PATCH',
                 uri: `/dataset/${ctx.request.body.connector.id}`,
                 body: {
@@ -164,7 +164,7 @@ const queryMiddleware = async (ctx, next) => {
         }
 
         try {
-            const result = await ctRegisterMicroservice.requestToMicroservice(options);
+            const result = await RWAPIMicroservice.requestToMicroservice(options);
 
             if (result.statusCode === 204 || result.statusCode === 200) {
                 const json2sql = result.body.data.attributes.jsonSql;
@@ -211,7 +211,7 @@ const queryMiddleware = async (ctx, next) => {
         }
         let esriJson = null;
         if (params.geostore) {
-            const result = await ctRegisterMicroservice.requestToMicroservice({
+            const result = await RWAPIMicroservice.requestToMicroservice({
                 uri: `/geostore/${params.geostore}?format=esri`,
                 method: 'GET',
                 json: true,

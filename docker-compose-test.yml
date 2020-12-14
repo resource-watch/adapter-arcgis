@@ -9,4 +9,6 @@ services:
       NODE_ENV: test
       CT_URL: http://mymachine:9000
       API_VERSION: v1
+      CT_TOKEN: cttoken
+      LOCAL_URL: http://adapter-arcgis.default.svc.cluster.local:3055
     command: test
