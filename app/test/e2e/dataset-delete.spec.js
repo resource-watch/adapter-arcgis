@@ -6,7 +6,7 @@ chai.should();
 
 const requester = getTestServer();
 
-describe('Delete Carto dataset', () => {
+describe('Delete dataset', () => {
 
     before(async () => {
         nock.cleanAll();
