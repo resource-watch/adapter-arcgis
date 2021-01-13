@@ -11,4 +11,5 @@ services:
       API_VERSION: v1
       CT_TOKEN: cttoken
       LOCAL_URL: http://adapter-arcgis.default.svc.cluster.local:3055
+      FASTLY_ENABLED: "false"
     command: test

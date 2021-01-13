@@ -61,6 +61,11 @@ spec:
                 secretKeyRef:
                   key: API_VERSION
                   name: mssecrets
+            - name: FASTLY_ENABLED
+              valueFrom:
+                secretKeyRef:
+                  key: FASTLY_ENABLED
+                  name: mssecrets
             - name: FASTLY_APIKEY
               valueFrom:
                 secretKeyRef:

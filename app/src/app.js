@@ -56,6 +56,7 @@ app.use(RWAPIMicroservice.bootstrap({
     baseURL: process.env.CT_URL,
     url: process.env.LOCAL_URL,
     token: process.env.CT_TOKEN,
+    fastlyEnabled: process.env.FASTLY_ENABLED,
     fastlyServiceId: process.env.FASTLY_SERVICEID,
     fastlyAPIKey: process.env.FASTLY_APIKEY
 }));
