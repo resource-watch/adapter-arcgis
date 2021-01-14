@@ -28,9 +28,7 @@ describe('Query with different response formats tests', () => {
 
         createMockGetDataset(datasetId, { connectorType: 'foo' });
 
-        const requestBody = {
-            loggedUser: null
-        };
+        const requestBody = {};
 
         const query = `select * from ${datasetId}`;
 
@@ -48,9 +46,7 @@ describe('Query with different response formats tests', () => {
 
         createMockGetDataset(datasetId, { provider: 'foo' });
 
-        const requestBody = {
-            loggedUser: null
-        };
+        const requestBody = {};
 
         const query = `select * from ${datasetId}`;
 

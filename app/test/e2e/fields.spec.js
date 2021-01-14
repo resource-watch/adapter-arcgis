@@ -22,9 +22,7 @@ describe('GET fields', () => {
 
         createMockGetDataset(timestamp, { connectorType: 'foo' });
 
-        const requestBody = {
-            loggedUser: null
-        };
+        const requestBody = {};
 
         const response = await requester
             .post(`/api/v1/arcgis/fields/${timestamp}`)
@@ -40,9 +38,7 @@ describe('GET fields', () => {
 
         createMockGetDataset(timestamp, { provider: 'foo' });
 
-        const requestBody = {
-            loggedUser: null
-        };
+        const requestBody = {};
 
         const response = await requester
             .post(`/api/v1/arcgis/fields/${timestamp}`)
@@ -90,9 +86,7 @@ describe('GET fields', () => {
 
         const response = await requester
             .post(`/api/v1/arcgis/fields/${dataset.id}`)
-            .send({
-                loggedUser: null
-            });
+            .send({});
 
         const fieldsResponse = {};
 
