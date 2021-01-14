@@ -27,9 +27,7 @@ describe('Query download tests', () => {
 
         createMockGetDataset(timestamp, { connectorType: 'foo' });
 
-        const requestBody = {
-            loggedUser: null
-        };
+        const requestBody = {};
 
         const query = `select * from ${timestamp}`;
 
@@ -47,9 +45,7 @@ describe('Query download tests', () => {
 
         createMockGetDataset(timestamp, { provider: 'foo' });
 
-        const requestBody = {
-            loggedUser: null
-        };
+        const requestBody = {};
 
         const query = `select * from ${timestamp}`;
 
