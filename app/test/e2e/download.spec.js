@@ -32,7 +32,7 @@ describe('Query download tests', () => {
         const query = `select * from ${timestamp}`;
 
         const response = await requester
-            .post(`/api/v1/arcgis/download/${timestamp}?sql=${encodeURI(query)}`)
+            .get(`/api/v1/arcgis/download/${timestamp}?sql=${encodeURI(query)}`)
             .send(requestBody);
 
         response.status.should.equal(422);
@@ -50,7 +50,7 @@ describe('Query download tests', () => {
         const query = `select * from ${timestamp}`;
 
         const response = await requester
-            .post(`/api/v1/arcgis/download/${timestamp}?sql=${encodeURI(query)}`)
+            .get(`/api/v1/arcgis/download/${timestamp}?sql=${encodeURI(query)}`)
             .send(requestBody);
 
         response.status.should.equal(422);
@@ -64,7 +64,7 @@ describe('Query download tests', () => {
         createMockGetDataset(timestamp);
 
         const response = await requester
-            .post(`/api/v1/arcgis/download/${timestamp}`)
+            .get(`/api/v1/arcgis/download/${timestamp}`)
             .send();
 
         ensureCorrectError(response, 'sql or fs required', 400);
@@ -123,7 +123,7 @@ describe('Query download tests', () => {
             .reply(200, featureServiceResponseFullQuery);
 
         const response = await requester
-            .post(`/api/v1/arcgis/download/${timestamp}`)
+            .get(`/api/v1/arcgis/download/${timestamp}`)
             .query({ sql, format: 'json' })
             .send();
 
@@ -187,7 +187,7 @@ describe('Query download tests', () => {
             .reply(200, featureServiceResponseFullQuery);
 
         const response = await requester
-            .post(`/api/v1/arcgis/download/${timestamp}`)
+            .get(`/api/v1/arcgis/download/${timestamp}`)
             .query({ sql, format: 'csv' })
             .send();
 

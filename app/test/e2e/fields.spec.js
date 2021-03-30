@@ -25,7 +25,7 @@ describe('GET fields', () => {
         const requestBody = {};
 
         const response = await requester
-            .post(`/api/v1/arcgis/fields/${timestamp}`)
+            .get(`/api/v1/arcgis/fields/${timestamp}`)
             .send(requestBody);
 
         response.status.should.equal(422);
@@ -41,7 +41,7 @@ describe('GET fields', () => {
         const requestBody = {};
 
         const response = await requester
-            .post(`/api/v1/arcgis/fields/${timestamp}`)
+            .get(`/api/v1/arcgis/fields/${timestamp}`)
             .send(requestBody);
 
         response.status.should.equal(422);
@@ -85,7 +85,7 @@ describe('GET fields', () => {
             });
 
         const response = await requester
-            .post(`/api/v1/arcgis/fields/${dataset.id}`)
+            .get(`/api/v1/arcgis/fields/${dataset.id}`)
             .send({});
 
         const fieldsResponse = {};
