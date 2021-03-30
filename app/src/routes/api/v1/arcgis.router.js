@@ -231,9 +231,9 @@ const queryMiddleware = async (ctx, next) => {
     await next();
 };
 
-router.post('/query/:dataset', DatasetMiddleware.getDatasetById, queryMiddleware, ArcgisRouter.query);
-router.post('/download/:dataset', DatasetMiddleware.getDatasetById, queryMiddleware, ArcgisRouter.download);
-router.post('/fields/:dataset', DatasetMiddleware.getDatasetById, ArcgisRouter.fields);
+router.get('/query/:dataset', DatasetMiddleware.getDatasetById, queryMiddleware, ArcgisRouter.query);
+router.get('/download/:dataset', DatasetMiddleware.getDatasetById, queryMiddleware, ArcgisRouter.download);
+router.get('/fields/:dataset', DatasetMiddleware.getDatasetById, ArcgisRouter.fields);
 router.post('/rest-datasets/featureservice', ArcgisRouter.registerDataset);
 router.delete('/rest-datasets/featureservice/:dataset', ArcgisRouter.deleteDataset);
 

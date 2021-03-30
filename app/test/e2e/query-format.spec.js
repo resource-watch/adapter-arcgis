@@ -33,7 +33,7 @@ describe('Query with different response formats tests', () => {
         const query = `select * from ${datasetId}`;
 
         const queryResponse = await requester
-            .post(`/api/v1/arcgis/query/${datasetId}?sql=${encodeURI(query)}`)
+            .get(`/api/v1/arcgis/query/${datasetId}?sql=${encodeURI(query)}`)
             .send(requestBody);
 
         queryResponse.status.should.equal(422);
@@ -51,7 +51,7 @@ describe('Query with different response formats tests', () => {
         const query = `select * from ${datasetId}`;
 
         const queryResponse = await requester
-            .post(`/api/v1/arcgis/query/${datasetId}?sql=${encodeURI(query)}`)
+            .get(`/api/v1/arcgis/query/${datasetId}?sql=${encodeURI(query)}`)
             .send(requestBody);
 
         queryResponse.status.should.equal(422);
@@ -113,7 +113,7 @@ describe('Query with different response formats tests', () => {
             .reply(200, featureServiceResponseFullQuery);
 
         const response = await requester
-            .post(`/api/v1/arcgis/query/${datasetId}`)
+            .get(`/api/v1/arcgis/query/${datasetId}`)
             .query({
                 sql: query
             })
@@ -186,7 +186,7 @@ describe('Query with different response formats tests', () => {
             .reply(200, featureServiceResponseFullQuery);
 
         const response = await requester
-            .post(`/api/v1/arcgis/query/${datasetId}`)
+            .get(`/api/v1/arcgis/query/${datasetId}`)
             .query({
                 sql: query,
                 format: 'json'
@@ -259,7 +259,7 @@ describe('Query with different response formats tests', () => {
             .reply(200, featureServiceResponseFullQuery);
 
         const response = await requester
-            .post(`/api/v1/arcgis/query/${datasetId}`)
+            .get(`/api/v1/arcgis/query/${datasetId}`)
             .query({
                 sql: query,
                 format: 'geojson'

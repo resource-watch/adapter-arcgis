@@ -76,7 +76,7 @@ describe('Query tests', () => {
             .reply(200, featureServiceResponseFullQuery);
 
         const response = await requester
-            .post(`/api/v1/arcgis/query/${datasetId}`)
+            .get(`/api/v1/arcgis/query/${datasetId}`)
             .query({ sql: query })
             .send();
 
@@ -184,7 +184,7 @@ describe('Query tests', () => {
             });
 
         const response = await requester
-            .post(`/api/v1/arcgis/query/${datasetId}`)
+            .get(`/api/v1/arcgis/query/${datasetId}`)
             .query({ sql: query })
             .send();
 
@@ -296,7 +296,7 @@ describe('Query tests', () => {
             });
 
         const response = await requester
-            .post(`/api/v1/arcgis/query/${datasetId}`)
+            .get(`/api/v1/arcgis/query/${datasetId}`)
             .query({ sql: query })
             .send();
 
@@ -381,7 +381,7 @@ describe('Query tests', () => {
             .reply(200, { error: { code: 400, message: 'Expected failure for testing purposes.', details: [] } });
 
         const response = await requester
-            .post(`/api/v1/arcgis/query/${datasetId}`)
+            .get(`/api/v1/arcgis/query/${datasetId}`)
             .query({ sql: query })
             .send();
 
