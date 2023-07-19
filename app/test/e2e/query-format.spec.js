@@ -4,14 +4,14 @@ const chai = require('chai');
 const fs = require('fs');
 const path = require('path');
 const { getTestServer } = require('./utils/test-server');
-const { createMockGetDataset } = require('./utils/helpers');
+const { createMockGetDataset, mockValidateRequestWithApiKey } = require('./utils/helpers');
 
 chai.should();
 
 nock.disableNetConnect();
 nock.enableNetConnect(process.env.HOST_IP);
 
-const requester = getTestServer();
+let requester;
 
 describe('Query with different response formats tests', () => {
 
@@ -20,10 +20,11 @@ describe('Query with different response formats tests', () => {
             throw Error(`Running the test suite with NODE_ENV ${process.env.NODE_ENV} may result in permanent data loss. Please use NODE_ENV=test.`);
         }
 
-        nock.cleanAll();
+        requester = await getTestServer();
     });
 
     it('Query to dataset without connectorType document should fail', async () => {
+        mockValidateRequestWithApiKey({});
         const datasetId = new Date().getTime();
 
         createMockGetDataset(datasetId, { connectorType: 'foo' });
@@ -34,6 +35,7 @@ describe('Query with different response formats tests', () => {
 
         const queryResponse = await requester
             .get(`/api/v1/arcgis/query/${datasetId}?sql=${encodeURI(query)}`)
+            .set('x-api-key', 'api-key-test')
             .send(requestBody);
 
         queryResponse.status.should.equal(422);
@@ -42,6 +44,7 @@ describe('Query with different response formats tests', () => {
     });
 
     it('Query to dataset without a supported provider should fail', async () => {
+        mockValidateRequestWithApiKey({});
         const datasetId = new Date().getTime();
 
         createMockGetDataset(datasetId, { provider: 'foo' });
@@ -52,6 +55,7 @@ describe('Query with different response formats tests', () => {
 
         const queryResponse = await requester
             .get(`/api/v1/arcgis/query/${datasetId}?sql=${encodeURI(query)}`)
+            .set('x-api-key', 'api-key-test')
             .send(requestBody);
 
         queryResponse.status.should.equal(422);
@@ -60,6 +64,7 @@ describe('Query with different response formats tests', () => {
     });
 
     it('Query a dataset with no format uses json format by default', async () => {
+        mockValidateRequestWithApiKey({});
         const datasetId = new Date().getTime();
 
         createMockGetDataset(datasetId);
@@ -67,7 +72,11 @@ describe('Query with different response formats tests', () => {
         const query = 'SELECT Category_EN, PA_Area_ha_KA FROM atlasprotected_areasMapServer4 LIMIT 20';
         const featureServiceResponseFullQuery = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'assets/queryFormatTestResponse.json'), 'utf8'));
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL, {
+            reqheaders: {
+                'x-api-key': 'api-key-test',
+            }
+        })
             .get('/v1/convert/sql2FS')
             .query({
                 sql: query,
@@ -114,6 +123,7 @@ describe('Query with different response formats tests', () => {
 
         const response = await requester
             .get(`/api/v1/arcgis/query/${datasetId}`)
+            .set('x-api-key', 'api-key-test')
             .query({
                 sql: query
             })
@@ -133,6 +143,7 @@ describe('Query with different response formats tests', () => {
     });
 
     it('Query a dataset with explicit json format returns the queried field values', async () => {
+        mockValidateRequestWithApiKey({});
         const datasetId = new Date().getTime();
 
         createMockGetDataset(datasetId);
@@ -140,7 +151,11 @@ describe('Query with different response formats tests', () => {
         const query = 'SELECT Category_EN, PA_Area_ha_KA FROM atlasprotected_areasMapServer4 LIMIT 20';
         const featureServiceResponseFullQuery = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'assets/queryFormatTestResponse.json'), 'utf8'));
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL, {
+            reqheaders: {
+                'x-api-key': 'api-key-test',
+            }
+        })
             .get('/v1/convert/sql2FS')
             .query({
                 sql: query,
@@ -187,6 +202,7 @@ describe('Query with different response formats tests', () => {
 
         const response = await requester
             .get(`/api/v1/arcgis/query/${datasetId}`)
+            .set('x-api-key', 'api-key-test')
             .query({
                 sql: query,
                 format: 'json'
@@ -207,6 +223,7 @@ describe('Query with different response formats tests', () => {
     });
 
     it('Query a dataset with explicit geojson format returns the queried field values', async () => {
+        mockValidateRequestWithApiKey({});
         const datasetId = new Date().getTime();
 
         createMockGetDataset(datasetId);
@@ -214,7 +231,11 @@ describe('Query with different response formats tests', () => {
         const query = 'SELECT Category_EN, PA_Area_ha_KA FROM atlasprotected_areasMapServer4 LIMIT 20';
         const featureServiceResponseFullQuery = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'assets/queryFormatTestResponse.json'), 'utf8'));
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL, {
+            reqheaders: {
+                'x-api-key': 'api-key-test',
+            }
+        })
             .get('/v1/convert/sql2FS')
             .query({
                 sql: query
@@ -260,6 +281,7 @@ describe('Query with different response formats tests', () => {
 
         const response = await requester
             .get(`/api/v1/arcgis/query/${datasetId}`)
+            .set('x-api-key', 'api-key-test')
             .query({
                 sql: query,
                 format: 'geojson'

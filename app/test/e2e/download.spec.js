@@ -13,7 +13,7 @@ let requester;
 nock.disableNetConnect();
 nock.enableNetConnect(process.env.HOST_IP);
 
-describe('Query download tests - POST HTTP verb', () => {
+describe('Query download tests', () => {
     before(async () => {
         if (process.env.NODE_ENV !== 'test') {
             throw Error(`Running the test suite with NODE_ENV ${process.env.NODE_ENV} may result in permanent data loss. Please use NODE_ENV=test.`);
@@ -135,8 +135,8 @@ describe('Query download tests - POST HTTP verb', () => {
 
         const response = await requester
             .post(`/api/v1/arcgis/download/${timestamp}`)
-            .set('x-api-key', 'api-key-test')
             .query({ sql, format: 'json' })
+            .set('x-api-key', 'api-key-test')
             .send();
 
         response.status.should.equal(200);

@@ -11,7 +11,7 @@ class DatasetMiddleware {
             ctx.throw(400, 'Invalid request');
         }
 
-        const dataset = await DatasetService.getDatasetById(datasetId);
+        const dataset = await DatasetService.getDatasetById(datasetId, ctx.request.headers['x-api-key']);
 
         if (!dataset) {
             ctx.throw(404, 'Dataset not found');

@@ -7,9 +7,11 @@ services:
     container_name: adapter-arcgis
     environment:
       NODE_ENV: test
-      CT_URL: http://mymachine:9000
-      API_VERSION: v1
-      CT_TOKEN: cttoken
+      GATEWAY_URL: http://mymachine:9000
+      MICROSERVICE_TOKEN: cttoken
       LOCAL_URL: http://adapter-arcgis.default.svc.cluster.local:3055
       FASTLY_ENABLED: "false"
+      AWS_REGION: "us-east-1"
+      AWS_ACCESS_KEY_ID: "test"
+      AWS_SECRET_ACCESS_KEY: "test"
     command: test

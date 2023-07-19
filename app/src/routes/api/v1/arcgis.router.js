@@ -103,25 +103,31 @@ class ArcgisRouter {
             await ArcgisService.getFields(ctx.request.body.connector.connector_url);
             await RWAPIMicroservice.requestToMicroservice({
                 method: 'PATCH',
-                uri: `/dataset/${ctx.request.body.connector.id}`,
+                uri: `/v1/dataset/${ctx.request.body.connector.id}`,
                 body: {
                     dataset: {
                         status: 1
                     }
                 },
-                json: true
+                json: true,
+                headers: {
+                    'x-api-key': ctx.request.headers['x-api-key'],
+                }
             });
         } catch (e) {
             await RWAPIMicroservice.requestToMicroservice({
                 method: 'PATCH',
-                uri: `/dataset/${ctx.request.body.connector.id}`,
+                uri: `/v1/dataset/${ctx.request.body.connector.id}`,
                 body: {
                     dataset: {
                         status: 2,
                         errorMessage: `${e.name} - ${e.message}`
                     }
                 },
-                json: true
+                json: true,
+                headers: {
+                    'x-api-key': ctx.request.headers['x-api-key'],
+                }
             });
         }
         ctx.body = {};
@@ -134,7 +140,10 @@ const queryMiddleware = async (ctx, next) => {
         method: 'GET',
         json: true,
         resolveWithFullResponse: true,
-        simple: false
+        simple: false,
+        headers: {
+            'x-api-key': ctx.request.headers['x-api-key'],
+        }
     };
     if (!ctx.query.sql && !ctx.request.body.sql && !ctx.query.outFields && !ctx.query.outStatistics && !ctx.query.returnCountOnly) {
         ctx.throw(400, 'sql or fs required');
@@ -144,7 +153,7 @@ const queryMiddleware = async (ctx, next) => {
     if (ctx.query.sql || ctx.request.body.sql) {
         logger.debug('Checking sql correct');
         const params = { ...ctx.query, ...ctx.request.body };
-        options.uri = `/convert/sql2FS?sql=${encodeURI(params.sql)}`;
+        options.uri = `/v1/convert/sql2FS?sql=${encodeURI(params.sql)}`;
         if (params.geostore) {
             options.uri += `&geostore=${params.geostore}`;
         }
@@ -212,9 +221,12 @@ const queryMiddleware = async (ctx, next) => {
         let esriJson = null;
         if (params.geostore) {
             const result = await RWAPIMicroservice.requestToMicroservice({
-                uri: `/geostore/${params.geostore}?format=esri`,
+                uri: `/v1/geostore/${params.geostore}?format=esri`,
                 method: 'GET',
                 json: true,
+                headers: {
+                    'x-api-key': ctx.request.headers['x-api-key'],
+                }
             });
             esriJson = result.data.attributes.esrijson;
         }

@@ -4,14 +4,14 @@ const chai = require('chai');
 const fs = require('fs');
 const path = require('path');
 const { getTestServer } = require('./utils/test-server');
-const { createMockGetDataset } = require('./utils/helpers');
+const { createMockGetDataset, mockValidateRequestWithApiKey } = require('./utils/helpers');
 
 chai.should();
 
 nock.disableNetConnect();
 nock.enableNetConnect(process.env.HOST_IP);
 
-const requester = getTestServer();
+let requester;
 
 describe('Query tests', () => {
 
@@ -20,10 +20,11 @@ describe('Query tests', () => {
             throw Error(`Running the test suite with NODE_ENV ${process.env.NODE_ENV} may result in permanent data loss. Please use NODE_ENV=test.`);
         }
 
-        nock.cleanAll();
+        requester = await getTestServer();
     });
 
     it('Query a dataset with "SELECT *" returns data', async () => {
+        mockValidateRequestWithApiKey({});
         const datasetId = new Date().getTime();
 
         createMockGetDataset(datasetId);
@@ -31,7 +32,11 @@ describe('Query tests', () => {
         const query = 'SELECT * FROM coddonnees_ouvertes_enMapServer31';
         const featureServiceResponseFullQuery = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'assets/queryTestResponse.json'), 'utf8'));
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL, {
+            reqheaders: {
+                'x-api-key': 'api-key-test',
+            }
+        })
             .get('/v1/convert/sql2FS')
             .query({
                 sql: query,
@@ -77,6 +82,7 @@ describe('Query tests', () => {
 
         const response = await requester
             .get(`/api/v1/arcgis/query/${datasetId}`)
+            .set('x-api-key', 'api-key-test')
             .query({ sql: query })
             .send();
 
@@ -90,13 +96,18 @@ describe('Query tests', () => {
     });
 
     it('Query a dataset with min() and max() calls returns data', async () => {
+        mockValidateRequestWithApiKey({});
         const datasetId = new Date().getTime();
 
         createMockGetDataset(datasetId);
 
         const query = 'SELECT min(shape_Length) AS min, max(shape_Length) AS max FROM coddonnees_ouvertes_enMapServer31';
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL, {
+            reqheaders: {
+                'x-api-key': 'api-key-test',
+            }
+        })
             .get('/v1/convert/sql2FS')
             .query({
                 sql: query,
@@ -185,6 +196,7 @@ describe('Query tests', () => {
 
         const response = await requester
             .get(`/api/v1/arcgis/query/${datasetId}`)
+            .set('x-api-key', 'api-key-test')
             .query({ sql: query })
             .send();
 
@@ -199,13 +211,18 @@ describe('Query tests', () => {
     });
 
     it('Query a dataset with "WHERE LIKE \'%%\'" calls returns data', async () => {
+        mockValidateRequestWithApiKey({});
         const datasetId = new Date().getTime();
 
         createMockGetDataset(datasetId);
 
         const query = 'SELECT tcl_name as x, area_ha as y FROM conservationMapServer3 WHERE tcl_name LIKE \'%ba%\'  ORDER BY area_ha desc LIMIT 50';
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL, {
+            reqheaders: {
+                'x-api-key': 'api-key-test',
+            }
+        })
             .get('/v1/convert/sql2FS')
             .query({
                 sql: query,
@@ -297,6 +314,7 @@ describe('Query tests', () => {
 
         const response = await requester
             .get(`/api/v1/arcgis/query/${datasetId}`)
+            .set('x-api-key', 'api-key-test')
             .query({ sql: query })
             .send();
 
@@ -326,13 +344,18 @@ describe('Query tests', () => {
     });
 
     it('Unsupported ArcGIS queries return an error', async () => {
+        mockValidateRequestWithApiKey({});
         const datasetId = new Date().getTime();
 
         createMockGetDataset(datasetId);
 
         const query = 'SELECT DISTINCT FUNCSTAT10 FROM ea852c8e-4dca-493c-8de2-e2d84d02897f LIMIT 10';
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL, {
+            reqheaders: {
+                'x-api-key': 'api-key-test',
+            }
+        })
             .get('/v1/convert/sql2FS')
             .query({
                 sql: query,
@@ -382,6 +405,7 @@ describe('Query tests', () => {
 
         const response = await requester
             .get(`/api/v1/arcgis/query/${datasetId}`)
+            .set('x-api-key', 'api-key-test')
             .query({ sql: query })
             .send();
 
