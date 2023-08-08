@@ -7,7 +7,7 @@ let requester;
 
 chai.use(chaiHttp);
 
-exports.getTestServer = function getTestServer() {
+exports.getTestServer = async function getTestServer() {
     if (requester) {
         return requester;
     }
@@ -15,10 +15,11 @@ exports.getTestServer = function getTestServer() {
     mockCloudWatchSetupRequestsSequence({
         awsRegion: process.env.AWS_REGION,
         logGroupName: process.env.CLOUDWATCH_LOG_GROUP_NAME,
-        logStreamName: config.get('service.name')
+        logStreamName: config.get('service.name').replace(/ /g, '_')
     });
 
-    const server = require('../../../src/app');
+    const serverPromise = require('../../../src/app');
+    const { server } = await serverPromise();
     requester = chai.request(server).keepOpen();
 
     return requester;

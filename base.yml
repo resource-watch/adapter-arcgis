@@ -1,8 +1,0 @@
-base:
-  build: .
-  ports:
-    - "3055:3055"
-  container_name: adapter-arcgis
-  environment:
-    PORT: 3055
-    NODE_PATH: app/src
